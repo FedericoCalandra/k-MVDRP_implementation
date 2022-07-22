@@ -35,3 +35,15 @@ class ProblemInstance:
 
     def get_distance(self, node1, node2):
         return self.distance_matrix[node1][node2]
+
+    def add_client_node(self, index, weight):
+        self.client_nodes.insert(index, ClientNode(index, weight))
+
+    def add_travel_node(self, index):
+        self.travel_nodes.insert(index, TravelNode(index, False))
+
+    def set_warehouse(self, index):
+        for tn in self.travel_nodes:
+            if tn.is_warehouse:
+                tn.is_warehouse = False
+        self.travel_nodes[index].is_warehouse = True
