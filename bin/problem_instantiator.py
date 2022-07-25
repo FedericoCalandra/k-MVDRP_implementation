@@ -1,4 +1,5 @@
 from .distance_matrix import DistanceMatrix
+from .nodes.node import Node
 from .nodes.client_node import ClientNode
 from .nodes.travel_node import TravelNode
 
@@ -19,13 +20,13 @@ class ProblemInstance:
         self.package_weights = package_weights
         self.client_nodes = create_client_nodes_list(number_of_client_nodes, package_weights)
         self.travel_nodes = create_travel_nodes_list(number_of_travel_nodes)
-        self.distance_matrix = DistanceMatrix(distance_matrix, self)
+        self.distance_matrix = DistanceMatrix(distance_matrix)
         self.number_of_drones = number_of_drones
 
-    def get_copy_of_client_nodes(self):
+    def get_list_of_client_nodes(self):
         return list.copy(self.client_nodes)
 
-    def get_copy_of_travel_nodes(self):
+    def get_list_of_travel_nodes(self):
         return list.copy(self.travel_nodes)
 
     def get_single_client_node(self, index):
@@ -36,6 +37,15 @@ class ProblemInstance:
 
     def get_distance_matrix(self):
         return self.distance_matrix
+
+    def get_distance(self, node1: Node, node2: Node):
+        node1_index = node1.index
+        node2_index = node2.index
+        if type(node1) is TravelNode:
+            node1_index = node1.index + self.get_number_of_clients()
+        if type(node2) is TravelNode:
+            node2_index = node2.index + self.get_number_of_clients()
+        return self.distance_matrix.get_matrix()[node1_index][node2_index]
 
     def get_number_of_clients(self):
         return len(self.client_nodes)

@@ -8,3 +8,6 @@ class TravelNode(Node):
 
     def get_is_warehouse(self):
         return self.is_warehouse
+
+    def __str__(self):
+        return "travel_node_index - " + str(self.index) + ("   is the warehouse" if self.get_is_warehouse() else "")

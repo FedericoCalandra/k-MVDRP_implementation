@@ -7,3 +7,6 @@ class Drone(Veicle):
         super().__init__(speed)
         self.max_weight = max_weight
         self.energy_usage_per_time_unit = energy_usage_per_time_unit
+
+    def __str__(self):
+        return "Speed: " + str(self.speed) + "   Max weight: " + str(self.max_weight)
