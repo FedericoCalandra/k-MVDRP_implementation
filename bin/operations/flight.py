@@ -30,5 +30,5 @@ class Flight:
     def compute_flight_time(self):
         flight_time = 0
         for movement in self.set_of_movements:
-            flight_time += movement.compute_movement_time(1)            # da sistemare!!!
+            flight_time += movement.compute_movement_time(movement)
         return flight_time
