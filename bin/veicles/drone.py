@@ -13,7 +13,7 @@ class Drone(Veicle):
         return self._energy_usage_per_time_unit.apply(flight_time, carried_weight, False)
 
     def get_hov_energy_used(self, hovering_time):
-        return  self._energy_usage_per_time_unit.apply(hovering_time, 0, True)
+        return self._energy_usage_per_time_unit.apply(hovering_time, 0, True)
 
     def __str__(self):
         return "Speed: " + str(self.speed) + "   Max weight: " + str(self.max_weight) + \

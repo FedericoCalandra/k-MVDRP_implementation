@@ -38,7 +38,7 @@ class ProblemInstance:
     def get_distance_matrix(self):
         return self.distance_matrix
 
-    def get_distance(self, node1: Node, node2: Node):
+    def compute_distance(self, node1: Node, node2: Node):
         node1_index = node1.index
         node2_index = node2.index
         if type(node1) is TravelNode:
