@@ -13,16 +13,21 @@ class FlightTestSuite(unittest.TestCase):
         num_of_travels_node = 2
         package_weights = [1, 1]
         length = num_of_clients_node + num_of_travels_node
+        drone = Drone(1.0, 10, EnergyFunction())
         distance_matrix = np.ones([length, length])
         problem_instance = problem_instantiator.ProblemInstance(num_of_clients_node, num_of_travels_node,
                                                                 package_weights, distance_matrix, 3)
 
         flight = Flight(problem_instance, problem_instance.get_single_travel_node(0),
                         problem_instance.get_single_travel_node(1), problem_instance.get_list_of_client_nodes(),
-                        Drone(1.0, 10, EnergyFunction()))
+                        drone)
 
         print("Takeoff node: ", flight.takeoff_node, "\nLanding node: ", flight.landing_node)
         for c in flight.visited_clients:
-            print("Visited clients: ", c)
+            print("Visited client: ", c)
         print("Drone specs: ", flight.drone)
         print("Flight time: ", flight.compute_flight_time())
+
+        self.assertEqual(flight.takeoff_node.index, 0)
+        self.assertEqual(flight.landing_node.index, 1)
+        self.assertEqual(flight.drone, drone)
