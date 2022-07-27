@@ -37,4 +37,4 @@ class FlightTestSuite(unittest.TestCase):
         self.assertEqual(flight.takeoff_node.index, 0)
         self.assertEqual(flight.landing_node.index, 1)
         self.assertEqual(flight.drone, drone)
-        #self.assertEqual(energy_computed, 2)
+        self.assertEqual(energy_computed, 4.5)
