@@ -6,9 +6,8 @@ from bin.veicles.drone import Drone
 
 
 class Flight:
-    def __init__(self, problem_instance: ProblemInstance, takeoff_node: TravelNode, landing_node: TravelNode,
+    def __init__(self, takeoff_node: TravelNode, landing_node: TravelNode,
                  visited_clients: list[ClientNode], drone: Drone):
-        self.problem_instance = problem_instance
         self.takeoff_node = takeoff_node
         self.landing_node = landing_node
         self.visited_clients = visited_clients
@@ -29,9 +28,13 @@ class Flight:
             total_weight += c.weight
         return total_weight
 
-    def compute_flight_time(self):
-        flight_time = 0
-        for movement in self.set_of_movements:
-            flight_time += movement.compute_movement_time(self.problem_instance
-                                                          .compute_distance(movement.start_node, movement.end_node))
-        return flight_time
+    def clone(self):
+        return Flight(self.takeoff_node, self.landing_node, self.visited_clients, self.drone)
+
+    #potrei spostarlo
+    # def compute_flight_time(self):
+    #     flight_time = 0
+    #     for movement in self.set_of_movements:
+    #         flight_time += movement.compute_movement_time(self.problem_instance
+    #                                                       .compute_distance(movement.start_node, movement.end_node))
+    #     return flight_time

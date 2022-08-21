@@ -7,6 +7,4 @@ class DistanceMatrix:
     def get_matrix(self):
         return self.distance_matrix
 
-
     #qua verranno fatte delle verifiche (simmetria, 0 su diagonale, ...)
-

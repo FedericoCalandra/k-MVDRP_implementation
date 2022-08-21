@@ -2,6 +2,8 @@ from .distance_matrix import DistanceMatrix
 from .nodes.node import Node
 from .nodes.client_node import ClientNode
 from .nodes.travel_node import TravelNode
+from .veicles.drone import Drone
+from .veicles.truck import Truck
 
 
 def create_client_nodes_list(number_of_clients_nodes: int, package_weights):
@@ -15,13 +17,17 @@ def create_travel_nodes_list(number_of_travel_nodes: int):
 class ProblemInstance:
 
     def __init__(self, number_of_client_nodes, number_of_travel_nodes, list_of_package_weights,
-                 distance_matrix, number_of_available_drones):
+                 drone_distance_matrix, truck_distance_matrix, number_of_available_drones, drone_type: Drone,
+                 truck_type: Truck):
 
         self.list_of_package_weights = list_of_package_weights
         self.client_nodes = create_client_nodes_list(number_of_client_nodes, list_of_package_weights)
         self.travel_nodes = create_travel_nodes_list(number_of_travel_nodes)
-        self.distance_matrix = DistanceMatrix(distance_matrix)
+        self.drone_distance_matrix = DistanceMatrix(drone_distance_matrix)
+        self.truck_distance_matrix = DistanceMatrix(truck_distance_matrix)
         self.number_of_available_drones = number_of_available_drones
+        self.drone = drone_type
+        self.truck = truck_type
 
     def get_list_of_client_nodes(self):
         return list.copy(self.client_nodes)

@@ -3,7 +3,8 @@ from bin.veicles.generic_veicle import Veicle
 
 
 class Drone(Veicle):
-    def __init__(self, speed: float, max_weight: float, max_energy_available: float, energy_usage_per_time_unit: EnergyFunction):
+    def __init__(self, speed: float, max_weight: float, max_energy_available: float,
+                 energy_usage_per_time_unit: EnergyFunction):
         super().__init__(speed)
         self.max_weight = max_weight
         self.max_energy_available = max_energy_available

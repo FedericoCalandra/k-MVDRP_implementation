@@ -2,6 +2,9 @@ import unittest
 import numpy as np
 from bin import problem_instantiator
 from bin.nodes.node import Node
+from bin.veicles.drone import Drone
+from bin.veicles.energy_function import EnergyFunction
+from bin.veicles.truck import Truck
 
 
 class ProblemInstanceTestSuite(unittest.TestCase):
@@ -11,8 +14,10 @@ class ProblemInstanceTestSuite(unittest.TestCase):
         num_of_travels = 4
         package_weights = [1, 1, 2, 1, 1, 3]
         distance_matrix = np.ones([10, 10])
+        drone = Drone(1.0, 10, 1, EnergyFunction())
+        truck = Truck(10)
         problem_instance = problem_instantiator.ProblemInstance(num_of_clients, num_of_travels,
-                                                                package_weights, distance_matrix, 1)
+                                                                package_weights, distance_matrix, 1, drone, truck)
 
         for i in range(len(problem_instance.client_nodes)):
             self.assertEqual(problem_instance.client_nodes[i].index, i)
@@ -29,14 +34,15 @@ class ProblemInstanceTestSuite(unittest.TestCase):
             for j in range(len(problem_instance.distance_matrix.get_matrix()[i])):
                 self.assertEqual(problem_instance.compute_distance(nodes[i], nodes[j]), distance_matrix[i][j])
 
-
     def test_compute_distance(self):
         num_of_clients = 6
         num_of_travels = 4
         package_weights = [1, 1, 2, 1, 1, 3]
         distance_matrix = np.ones([10, 10])
+        drone = Drone(1.0, 10, 1, EnergyFunction())
+        truck = Truck(10)
         problem_instance = problem_instantiator.ProblemInstance(num_of_clients, num_of_travels,
-                                                                package_weights, distance_matrix, 1)
+                                                                package_weights, distance_matrix, 1, drone, truck)
 
         node_1 = problem_instance.get_single_travel_node(0)
         node_2 = problem_instance.get_single_client_node(0)
