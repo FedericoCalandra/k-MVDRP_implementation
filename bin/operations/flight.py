@@ -1,12 +1,12 @@
 from bin.nodes.client_node import ClientNode
-from bin.nodes.travel_node import TravelNode
+from bin.nodes.node import Node
 from bin.operations.movement import Movement
-from bin.problem_instantiator import ProblemInstance
+#from bin.problem_instantiator import ProblemInstance
 from bin.veicles.drone import Drone
 
 
 class Flight:
-    def __init__(self, takeoff_node: TravelNode, landing_node: TravelNode,
+    def __init__(self, takeoff_node: Node, landing_node: Node,
                  visited_clients: list[ClientNode], drone: Drone):
         self.takeoff_node = takeoff_node
         self.landing_node = landing_node
