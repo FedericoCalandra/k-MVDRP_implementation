@@ -10,4 +10,4 @@ class ClientNode(Node):
         return self.weight
 
     def __str__(self):
-        return "client_node_index - " + str(self.index) + "   weight - " + str(self.get_weight())
+        return "C" + str(self.index)

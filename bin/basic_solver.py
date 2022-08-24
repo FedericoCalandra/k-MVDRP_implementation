@@ -1,3 +1,4 @@
+import bin.operations.flight
 from bin.operations.flight import Flight
 from bin.operations.movement import Movement
 from bin.problem_instantiator import ProblemInstance
@@ -41,7 +42,7 @@ class BasicSolver:
     def compute_feasible_steps(self, flight):
         possible_flights = []
         for client in self.problem_instance.client_nodes:
-            new_flight = flight.clone()
+            new_flight = flight.__copy__()
             if client not in new_flight.visited_clients:
                 new_flight.visited_clients.insert(len(new_flight.visited_clients) - 1, client)
                 if self.energy_used_for_flight(new_flight) < self.problem_instance.drone.max_energy_available:
@@ -49,11 +50,14 @@ class BasicSolver:
         return possible_flights
 
 
-
     def energy_used_for_flight(self, flight):
         energy_used = 0
-        for i in range(1, len(flight)):
-            return 1
+        flight_time = flight.compute_flight_time(self.problem_instance)
+        energy_used = flight.drone.get_energy_used()
+        truck_time = Movement(flight.takeoff_node, flight.landing_node,
+                              self.problem_instance.truck).compute_movement_time()
+        return 1
+
 
     def compute_all_feasible_operations(self):
         operations_computed = []

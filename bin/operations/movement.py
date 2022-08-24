@@ -10,3 +10,6 @@ class Movement:
 
     def compute_movement_time(self, distance_between_nodes):
         return distance_between_nodes / self.veicle.speed
+
+    def __str__(self):
+        return "[" + str(self.start_node) + ", " + str(self.end_node) + "] -" + str(self.veicle) + "-"

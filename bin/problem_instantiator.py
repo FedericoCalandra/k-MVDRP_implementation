@@ -41,17 +41,19 @@ class ProblemInstance:
     def get_single_travel_node(self, index):
         return self.travel_nodes[index]
 
-    def get_distance_matrix(self):
-        return self.distance_matrix
-
-    def compute_distance(self, node1: Node, node2: Node):
+    def compute_distance_for_drone(self, node1: Node, node2: Node):
         node1_index = node1.index
         node2_index = node2.index
         if type(node1) is TravelNode:
             node1_index = node1.index + self.get_number_of_clients()
         if type(node2) is TravelNode:
             node2_index = node2.index + self.get_number_of_clients()
-        return self.distance_matrix.get_matrix()[node1_index][node2_index]
+        return self.drone_distance_matrix.get_matrix()[node1_index][node2_index]
+
+    def compute_distance_for_truck(self, node1: TravelNode, node2: TravelNode):
+        node1_index = node1.index
+        node2_index = node2.index
+        return self.truck_distance_matrix.get_matrix()[node1_index][node2_index]
 
     def get_number_of_clients(self):
         return len(self.client_nodes)
