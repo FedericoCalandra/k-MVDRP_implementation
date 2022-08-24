@@ -30,7 +30,7 @@ class FlightTestSuite(unittest.TestCase):
         for c in flight.visited_clients:
             print("Visited client: " + str(c))
         print("Drone specs: ", flight.drone)
-        print("Flight time: ", flight.compute_flight_time(problem_instance))
+        print("Drone flight time: ", flight.compute_flight_time(problem_instance))
         energy_computed = flight.compute_energy_used_for_flight(problem_instance)
         print("Energy used = " + str(energy_computed))
 
