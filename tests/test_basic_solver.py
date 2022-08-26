@@ -61,6 +61,7 @@ class BasicSolverTestSuite(unittest.TestCase):
         print("ALL FEASIBLE OPERATIONS COMPUTED")
         for operation in all_operations:
             print(operation)
+        print("Total number of feasible operations: " + str(len(all_operations)))
 
 
 if __name__ == '__main__':
