@@ -59,12 +59,12 @@ class Flight:
                                            truck).compute_movement_time(problem_instance.
                                                                         compute_distance_for_truck(self.takeoff_node,
                                                                                                    self.landing_node))
-        print("Time for truck movement = " + str(time_for_truck_movement))
         drone_flight_time = self.compute_flight_time(problem_instance)
-        for movement in self.list_of_movements:
-            energy_used += self.drone.get_energy_used(movement.compute_movement_time(
-                problem_instance.compute_distance_for_drone(
-                    movement.start_node, movement.end_node)), self._compute_weight_associated_to_movement(movement))
+        if self.list_of_movements:
+            for movement in self.list_of_movements:
+                energy_used += self.drone.get_energy_used(movement.compute_movement_time(
+                    problem_instance.compute_distance_for_drone(
+                        movement.start_node, movement.end_node)), self._compute_weight_associated_to_movement(movement))
         if drone_flight_time < time_for_truck_movement:
             energy_used += self.drone.get_hov_energy_used(time_for_truck_movement - drone_flight_time)
         return energy_used

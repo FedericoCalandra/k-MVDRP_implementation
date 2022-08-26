@@ -1,5 +1,4 @@
 import unittest
-import numpy as np
 from bin import problem_instantiator
 from bin.basic_solver import BasicSolver
 from bin.veicles.drone import Drone
@@ -48,7 +47,7 @@ class BasicSolverTestSuite(unittest.TestCase):
                                                                      self.truck_time_matrix, 1, self.drone, self.truck)
         self.basic_solver = BasicSolver(self.problem_instance)
 
-    #truck movement test
+    # truck movement test
     def test_truck_movement(self):
         truck_movements = self.basic_solver.compute_all_feasible_truck_movements()
         print("\nTRUCK MOVEMENTS COMUTED")
@@ -56,12 +55,13 @@ class BasicSolverTestSuite(unittest.TestCase):
             print(movement)
         self.assertEqual(len(truck_movements), pow(len(self.truck_distance_matrix_2), 2))
 
-    #all flights test
-    def test_compute_all_feasible_flights(self):
-        all_flights = self.basic_solver.compute_all_feasible_flights()
-        print("ALL FLIGHTS COMPUTED")
-        for flight in all_flights:
-            print(flight)
+    # all ops test
+    def test_compute_all_feasible_operations(self):
+        all_operations = self.basic_solver.compute_all_feasible_operations()
+        print("ALL FEASIBLE OPERATIONS COMPUTED")
+        for operation in all_operations:
+            print(operation)
+
 
 if __name__ == '__main__':
     unittest.main()
