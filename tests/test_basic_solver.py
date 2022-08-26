@@ -9,6 +9,13 @@ from bin.veicles.truck import Truck
 class BasicSolverTestSuite(unittest.TestCase):
 
     def setUp(self):
+
+        class Exp(EnergyFunction):
+            def apply(self, flight_time, carried_weight, is_hovering: bool):
+                if is_hovering:
+                    return 1 * flight_time
+                return 1 * flight_time * carried_weight
+
         self.package_weights = [1, 1, 2, 1, 1, 3]
         self.drone_distance_matrix_1 = [[0, 7, 10, 9.4, 5.4, 5, 5.4, 12, 8.5, 5.4, 3.6],
                                         [7, 0, 7, 10.4, 10.4, 5, 3, 8.6, 8.5, 7, 10.6],
@@ -40,7 +47,7 @@ class BasicSolverTestSuite(unittest.TestCase):
         self.num_of_travels = len(self.truck_distance_matrix_2)
         self.drone_time_matrix = self.drone_distance_matrix_2
         self.truck_time_matrix = self.truck_distance_matrix_2
-        self.drone = Drone(10.0, 5.0, 2, EnergyFunction())
+        self.drone = Drone(10.0, 5.0, 2, Exp())
         self.truck = Truck(10)
         self.problem_instance = problem_instantiator.ProblemInstance(self.num_of_clients, self.num_of_travels,
                                                                      self.package_weights, self.drone_time_matrix,

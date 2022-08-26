@@ -10,11 +10,18 @@ from bin.veicles.truck import Truck
 class FlightTestSuite(unittest.TestCase):
 
     def test_flight(self):
+
+        class Exp(EnergyFunction):
+            def apply(self, flight_time, carried_weight, is_hovering: bool):
+                if is_hovering:
+                    return 1 * flight_time
+                return 1 * flight_time * carried_weight
+
         num_of_clients_node = 2
         num_of_travels_node = 2
         package_weights = [2, 2]
         length = num_of_clients_node + num_of_travels_node
-        drone = Drone(3.0, 10, 1, EnergyFunction())
+        drone = Drone(3.0, 10, 1, Exp())
         truck = Truck(0.4)
         drone_distance_matrix = np.ones([length, length])*2
         truck_distance_matrix = np.ones([length, length])
