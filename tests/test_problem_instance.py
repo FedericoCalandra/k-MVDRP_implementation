@@ -9,46 +9,41 @@ from bin.veicles.truck import Truck
 
 class ProblemInstanceTestSuite(unittest.TestCase):
 
+    def setUp(self):
+        self.num_of_clients = 6
+        self.num_of_travels = 4
+        self.package_weights = [1, 1, 2, 1, 1, 3]
+        self.drone_distance_matrix = np.ones([10, 10])
+        self.truck_distance_matrix = np.ones([10, 10])
+        self.drone = Drone(1.0, 10, 1, EnergyFunction())
+        self.truck = Truck(10)
+        self.problem_instance = problem_instantiator.ProblemInstance(self.num_of_clients, self.num_of_travels,
+                                                                     self.package_weights, self.drone_distance_matrix,
+                                                                     self.truck_distance_matrix, 1, self.drone,
+                                                                     self.truck)
+
     def test_instanceProblem_getters(self):
-        num_of_clients = 6
-        num_of_travels = 4
-        package_weights = [1, 1, 2, 1, 1, 3]
-        drone_distance_matrix = np.ones([10, 10])
-        truck_distance_matrix = np.ones([10, 10])
-        drone = Drone(1.0, 10, 1, EnergyFunction())
-        truck = Truck(10)
-        problem_instance = problem_instantiator.ProblemInstance(num_of_clients, num_of_travels,
-                                                                package_weights, drone_distance_matrix,
-                                                                truck_distance_matrix, 1, drone, truck)
+        for i in range(len(self.problem_instance.client_nodes)):
+            self.assertEqual(self.problem_instance.client_nodes[i].index, i)
+            self.assertEqual(self.problem_instance.client_nodes[i].weight, self.package_weights[i])
 
-        for i in range(len(problem_instance.client_nodes)):
-            self.assertEqual(problem_instance.client_nodes[i].index, i)
-            self.assertEqual(problem_instance.client_nodes[i].weight, package_weights[i])
+        for i in range(len(self.problem_instance.travel_nodes)):
+            self.assertEqual(self.problem_instance.travel_nodes[i].index, i)
+            self.assertEqual(self.problem_instance.travel_nodes[i].is_warehouse, i == 0)
 
-        for i in range(len(problem_instance.travel_nodes)):
-            self.assertEqual(problem_instance.travel_nodes[i].index, i)
-            self.assertEqual(problem_instance.travel_nodes[i].is_warehouse, i == 0)
+        nodes = list.copy(self.problem_instance.client_nodes)
+        nodes.extend(self.problem_instance.travel_nodes)
 
-        nodes = list.copy(problem_instance.client_nodes)
-        nodes.extend(problem_instance.travel_nodes)
-
-        for i in range(len(problem_instance.distance_matrix.get_matrix())):
-            for j in range(len(problem_instance.distance_matrix.get_matrix()[i])):
-                self.assertEqual(problem_instance.compute_distance_for_drone(nodes[i], nodes[j]), distance_matrix[i][j])
+        for i in range(len(self.problem_instance.drone_distance_matrix.get_matrix())):
+            for j in range(len(self.problem_instance.drone_distance_matrix.get_matrix()[i])):
+                self.assertEqual(self.problem_instance.compute_distance_for_drone(nodes[i], nodes[j]),
+                                 self.drone_distance_matrix[i][j])
 
     def test_compute_distance(self):
-        num_of_clients = 6
-        num_of_travels = 4
-        package_weights = [1, 1, 2, 1, 1, 3]
-        distance_matrix = np.ones([10, 10])
-        drone = Drone(1.0, 10, 1, EnergyFunction())
-        truck = Truck(10)
-        problem_instance = problem_instantiator.ProblemInstance(num_of_clients, num_of_travels,
-                                                                package_weights, distance_matrix, 1, drone, truck)
-
-        node_1 = problem_instance.get_single_travel_node(0)
-        node_2 = problem_instance.get_single_client_node(0)
-        self.assertEqual(problem_instance.compute_distance_for_drone(node_1, node_2), distance_matrix[num_of_clients][0])
+        node_1 = self.problem_instance.get_single_travel_node(0)
+        node_2 = self.problem_instance.get_single_client_node(0)
+        self.assertEqual(self.problem_instance.compute_distance_for_drone(node_1, node_2),
+                         self.drone_distance_matrix[self.num_of_clients][0])
 
 
 if __name__ == '__main__':

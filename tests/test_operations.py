@@ -29,4 +29,4 @@ class OperationsTestSuite(unittest.TestCase):
         time = travel.compute_travel_time()
         print("travel time computed: " + str(time))
 
-        self.assertEqual(time, distance_matrix[num_of_clients][num_of_clients + 1] / truck.speed)
+        self.assertEqual(time, drone_distance_matrix[num_of_clients_node][num_of_clients_node + 1] / truck.speed)

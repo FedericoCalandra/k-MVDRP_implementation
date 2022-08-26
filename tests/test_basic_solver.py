@@ -44,7 +44,7 @@ class BasicSolverTestSuite(unittest.TestCase):
         self.truck = Truck(10)
         self.problem_instance = problem_instantiator.ProblemInstance(self.num_of_clients, self.num_of_travels,
                                                                      self.package_weights, self.drone_time_matrix,
-                                                                     self.truck_time_matrix, 1, self.drone, self.truck)
+                                                                     self.truck_time_matrix, 2, self.drone, self.truck)
         self.basic_solver = BasicSolver(self.problem_instance)
 
     # truck movement test

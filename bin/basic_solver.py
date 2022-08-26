@@ -6,14 +6,6 @@ from bin.problem_instantiator import ProblemInstance
 import itertools
 
 
-def get_combinations(array):
-    combinations = []
-    for number_of_elements in range(1, len(array) + 1):
-        for subset in itertools.combinations(array, number_of_elements):
-            combinations.append(subset)
-    return combinations
-
-
 class BasicSolver:
 
     def __init__(self, problem_instance: ProblemInstance):
@@ -28,7 +20,7 @@ class BasicSolver:
                 all_feasible_truck_movements.append(Movement(start_node, end_node, self.problem_instance.truck))
         return all_feasible_truck_movements
 
-    def compute_all_feasible_operations(self):         # potrei calcolare direttamente le operazioni
+    def compute_all_feasible_operations(self):
         pointer = 0
         ops = []
         for movement in self.compute_all_feasible_truck_movements():
@@ -40,6 +32,8 @@ class BasicSolver:
             for flights_comb in combinations:
                 # noinspection PyTypeChecker
                 ops.append(Operation(movement.start_node, movement.end_node, flights_comb, self.problem_instance.truck))
+
+            # C'E' UN PROBLEMA!!!
             pointer = len(self.feasible_flights) - pointer
             for operation in ops:
                 self.all_feasible_operations.append(operation)
