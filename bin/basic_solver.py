@@ -32,8 +32,6 @@ class BasicSolver:
             for flights_comb in combinations:
                 # noinspection PyTypeChecker
                 ops.append(Operation(movement.start_node, movement.end_node, flights_comb, self.problem_instance.truck))
-
-            # C'E' UN PROBLEMA!!!
             pointer = len(self.feasible_flights)
             for operation in ops:
                 self.all_feasible_operations.append(operation)
