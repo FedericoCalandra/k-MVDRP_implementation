@@ -12,4 +12,4 @@ class TSPSolverTestSuite(unittest.TestCase):
                            [6, 20, 100, 5],
                            [1, 7, 5, 100]]
         tsp = TSPSolver(clients, distance_matrix)
-        tsp.solve()
+        solution = tsp.solve()

@@ -61,14 +61,22 @@ class ProblemInstance:
     def get_number_of_travel_nodes(self):
         return len(self.travel_nodes)
 
-    def add_client_node(self, index, weight):
-        self.client_nodes.insert(index, ClientNode(index, weight))
+    def add_client_node(self, weight):
+        self.client_nodes.append(ClientNode(len(self.client_nodes), weight))
 
-    def add_travel_node(self, index):
-        self.travel_nodes.insert(index, TravelNode(index, False))
+    def add_travel_node(self):
+        self.travel_nodes.append(TravelNode(len(self.travel_nodes), False))
 
     def set_warehouse(self, index):
         for tn in self.travel_nodes:
             if tn.is_warehouse:
                 tn.is_warehouse = False
         self.travel_nodes[index].is_warehouse = True
+
+    def get_warehouse(self):
+        warehouse = None
+        for t in self.travel_nodes:
+            if t.is_warehouse:
+                warehouse = t
+                break
+        return warehouse
