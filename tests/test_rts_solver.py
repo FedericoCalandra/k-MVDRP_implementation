@@ -31,18 +31,21 @@ class RTSSolverTestSuite(unittest.TestCase):
         self.num_of_travels = len(self.truck_distance_matrix)
         self.drone_time_matrix = self.drone_distance_matrix
         self.truck_time_matrix = self.truck_distance_matrix
-        self.drone = Drone(10.0, 5.0, 2, Exp())
+        self.drone = Drone(10.0, 5.0, 100, Exp())
         self.truck = Truck(10)
         self.problem_instance = problem_instantiator.ProblemInstance(self.num_of_clients, self.num_of_travels,
                                                                      self.package_weights, self.drone_time_matrix,
-                                                                     self.truck_time_matrix, 2, self.drone, self.truck)
+                                                                     self.truck_time_matrix, 1, self.drone, self.truck)
         self.rts_solver = RTSSolver(self.problem_instance)
         print("PROBLEM INSTANCE" + "\nnumber of clients: " + str(self.num_of_clients) + "\nnumber of travel node: " +
               str(self.num_of_travels) + "\ndrone: " + str(self.drone) + "\ntruck: " + str(self.truck))
-
 
     def test_route(self):
         print("---visit order---")
         for node in self.rts_solver.visit_order:
             print(node)
         print("-----------------")
+
+    def test_transform(self):
+        print("GRAPH")
+        print(self.rts_solver.graph)

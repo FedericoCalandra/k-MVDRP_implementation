@@ -34,7 +34,7 @@ class Operation:
         drone_times = []
         for flight in self.flights:
             drone_times.append(flight.compute_flight_time(self.problem_instance))
-        max_drone_time = max(drone_times)
+        max_drone_time = max(drone_times) if drone_times else 0
         truck_time = self.truck_movement.compute_movement_time(
             self.problem_instance.compute_distance_for_truck(self.start_node, self.end_node))
         return max(truck_time, max_drone_time)

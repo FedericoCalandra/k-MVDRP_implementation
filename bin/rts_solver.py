@@ -1,4 +1,5 @@
 from bin.problem_instantiator import ProblemInstance
+from bin.util.graph import Graph
 from bin.util.tsp_solver import TSPSolver
 
 
@@ -6,6 +7,7 @@ class RTSSolver:
     def __init__(self, problem_instance: ProblemInstance):
         self.problem_instance = problem_instance
         self.visit_order = self.route()
+        self.graph = self.transform()
 
     def route(self):
         nodes = []
@@ -30,8 +32,6 @@ class RTSSolver:
         for index in visit_order:
             if index < len(solution) - 1:
                 nodes_visit_order.append(self.problem_instance.client_nodes[index])
-            else:
-                nodes_visit_order.append(self.problem_instance.get_warehouse())
         return nodes_visit_order
 
     def compute_distance_matrix(self):
@@ -46,7 +46,7 @@ class RTSSolver:
         return matrix
 
     def transform(self):
-        pass
+        return Graph(self.problem_instance, self.visit_order)
 
     def shortest_path(self):
         pass
