@@ -1,6 +1,8 @@
 from bin.problem_instantiator import ProblemInstance
 from bin.util.graph import Graph
+from bin.util.rts_solution import RTSSolution
 from bin.util.tsp_solver import TSPSolver
+import gurobipy as gb
 
 
 class RTSSolver:
@@ -49,4 +51,44 @@ class RTSSolver:
         return Graph(self.problem_instance, self.visit_order)
 
     def shortest_path(self):
-        pass
+        model = gb.Model()
+        x = []
+        costs = []
+
+        for i in range(len(self.graph.edges)):
+            x.append(model.addVar(lb=0, vtype=gb.GRB.CONTINUOUS, name=f"x[{i}]"))
+            costs.append(self.graph.edges[i].cost)
+
+        model.modelSense = gb.GRB.MINIMIZE
+        model.setObjective(gb.quicksum(costs[i] * x[i] for i in range(len(costs))))
+
+        model.addConstr(gb.quicksum(x[i] for i in self.graph.get_outgoing_edges_indexes(self.graph.get_start_node())) -
+                        gb.quicksum(x[i] for i in self.graph.get_entering_edges_indexes(self.graph.get_start_node()))
+                        == 1, name="C0")
+        model.addConstr(gb.quicksum(x[i] for i in self.graph.get_outgoing_edges_indexes(self.graph.get_end_node())) -
+                        gb.quicksum(x[i] for i in self.graph.get_entering_edges_indexes(self.graph.get_end_node()))
+                        == -1, name="C1")
+
+        node_list = self.graph.nodes.copy()
+        node_list[self.problem_instance.get_warehouse().index] = self.graph.nodes[
+            self.problem_instance.get_warehouse().index].copy()
+        node_list[self.problem_instance.get_warehouse().index].remove(self.graph.get_start_node())
+        node_list[self.problem_instance.get_warehouse().index].remove(self.graph.get_end_node())
+        for row in node_list:
+            for node in row:
+                model.addConstr(gb.quicksum(x[i] for i in self.graph.get_entering_edges_indexes(node)) -
+                                gb.quicksum(x[i] for i in self.graph.get_outgoing_edges_indexes(node))
+                                == 0, name=f"C {str(node)}")
+
+        model.optimize()
+
+        is_infeasible = model.Status == gb.GRB.INFEASIBLE
+        active_edges = []
+        total_time = 0
+        if not is_infeasible:
+            total_time = model.ObjVal
+            for i in range(len(x)):
+                if x[i].X > 0.5:
+                    active_edges.append(self.graph.edges[i])
+
+        return RTSSolution(is_infeasible, total_time, active_edges, model.Runtime)

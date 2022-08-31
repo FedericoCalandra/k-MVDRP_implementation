@@ -67,6 +67,26 @@ class Graph:
                         edges_computed.append(GraphEdge(starting_node, self.nodes[i][j], op))
         return edges_computed
 
+    def get_outgoing_edges_indexes(self, node: GraphNode):
+        indexes = []
+        for edge in self.edges:
+            if edge.first_node == node:
+                indexes.append(self.edges.index(edge))
+        return indexes
+
+    def get_entering_edges_indexes(self, node: GraphNode):
+        indexes = []
+        for edge in self.edges:
+            if edge.second_node == node:
+                indexes.append(self.edges.index(edge))
+        return indexes
+
+    def get_start_node(self):
+        return self.nodes[self.problem_instance.get_warehouse().index][0]
+
+    def get_end_node(self):
+        return self.nodes[self.problem_instance.get_warehouse().index][len(self.problem_instance.client_nodes)]
+
     def __str__(self):
         s = ""
         for e in self.edges:

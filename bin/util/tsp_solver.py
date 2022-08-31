@@ -43,7 +43,10 @@ class TSPSolver:
         return self.distance_matrix[client1][client2]
 
     def solve(self):
-        m = gp.Model()
+        env = gp.Env(empty=True)
+        env.setParam("OutputFlag", 0)
+        env.start()
+        m = gp.Model(env=env)
         self.problem_variables = m.addVars(self.dist.keys(), obj=self.dist, vtype=GRB.BINARY, name='x')
         for i, j in self.problem_variables.keys():
             self.problem_variables[j, i] = self.problem_variables[i, j]

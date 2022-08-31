@@ -1,4 +1,4 @@
-from .distance_matrix import DistanceMatrix
+from bin.util.distance_matrix import DistanceMatrix
 from .nodes.node import Node
 from .nodes.client_node import ClientNode
 from .nodes.travel_node import TravelNode
