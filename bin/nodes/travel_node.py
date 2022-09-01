@@ -2,8 +2,8 @@ from .node import Node
 
 
 class TravelNode(Node):
-    def __init__(self, index: int, is_warehouse: bool):
-        super().__init__(index)
+    def __init__(self, index: int, x_coordinate, y_coordinate, is_warehouse: bool):
+        super().__init__(index, x_coordinate, y_coordinate)
         self.is_warehouse = is_warehouse
 
     def get_is_warehouse(self):

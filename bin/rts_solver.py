@@ -11,6 +11,9 @@ class RTSSolver:
         self.visit_order = self.route()
         self.graph = self.transform()
 
+    def solve(self):
+        return self.shortest_path()
+
     def route(self):
         nodes = []
         for c in self.problem_instance.client_nodes:
@@ -39,10 +42,10 @@ class RTSSolver:
     def compute_distance_matrix(self):
         matrix = []
         for i in range(len(self.problem_instance.drone_distance_matrix.get_matrix()) -
-                       len(self.problem_instance.client_nodes) + 1):
+                       len(self.problem_instance.travel_nodes) + 1):
             row = []
             for j in range(len(self.problem_instance.drone_distance_matrix.get_matrix()) -
-                           len(self.problem_instance.client_nodes) + 1):
+                           len(self.problem_instance.travel_nodes) + 1):
                 row.append(self.problem_instance.drone_distance_matrix.get_matrix()[i][j])
             matrix.append(row)
         return matrix
@@ -51,7 +54,10 @@ class RTSSolver:
         return Graph(self.problem_instance, self.visit_order)
 
     def shortest_path(self):
-        model = gb.Model()
+        env = gb.Env(empty=True)
+        env.setParam("OutputFlag", 0)
+        env.start()
+        model = gb.Model(env=env)
         x = []
         costs = []
 

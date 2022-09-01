@@ -1,3 +1,5 @@
+import math
+
 from bin.nodes.client_node import ClientNode
 from bin.nodes.node import Node
 from bin.operations.movement import Movement
@@ -62,9 +64,13 @@ class Flight:
         drone_flight_time = self.compute_flight_time(problem_instance)
         if self.list_of_movements:
             for movement in self.list_of_movements:
-                energy_used += self.drone.get_energy_used(movement.compute_movement_time(
-                    problem_instance.compute_distance_for_drone(
-                        movement.start_node, movement.end_node)), self._compute_weight_associated_to_movement(movement))
+                if self.total_weight > self.drone.max_weight:
+                    energy_used = math.inf
+                else:
+                    energy_used += self.drone.get_energy_used(movement.compute_movement_time(
+                        problem_instance.compute_distance_for_drone(
+                            movement.start_node, movement.end_node)),
+                        self._compute_weight_associated_to_movement(movement))
         if drone_flight_time < time_for_truck_movement:
             energy_used += self.drone.get_hov_energy_used(time_for_truck_movement - drone_flight_time)
         return energy_used

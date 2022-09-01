@@ -2,8 +2,8 @@ from .node import Node
 
 
 class ClientNode(Node):
-    def __init__(self, index, weight):
-        super().__init__(index)
+    def __init__(self, index: int, x_coordinate, y_coordinate, weight):
+        super().__init__(index, x_coordinate, y_coordinate)
         self.weight = weight
 
     def get_weight(self):

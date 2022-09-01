@@ -53,6 +53,12 @@ class UniformDistanceMatrixGenerator(DistanceMatrixGenerator):
 
         return DistanceMatrix(distance_matrix)
 
+    def get_clients_coordinates(self):
+        return self._client_points.copy()
+
+    def get_travels_coordinates(self):
+        return self._travel_points.copy()
+
     def plot_points(self):
         if self._client_points and self._travel_points:
             plt.rcParams["figure.figsize"] = [9.00, 7.50]

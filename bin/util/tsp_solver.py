@@ -8,7 +8,7 @@ def subtourelim(model, where):
         vals = model.cbGetSolution(model._vars)
         selected = gp.tuplelist((i, j) for i, j in model._vars.keys()
                                 if vals[i, j] > 0.5)
-        nodes = [i for i in range(len(model._vars))]
+        nodes = [i for i in range(len(model.getConstrs()))]
         tour = subtour(selected, nodes)
         if len(tour) < len(nodes):
             model.cbLazy(gp.quicksum(model._vars[i, j] for i, j in combinations(tour, 2))
