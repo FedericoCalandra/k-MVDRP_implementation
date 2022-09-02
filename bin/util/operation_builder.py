@@ -25,10 +25,10 @@ class OperationBuilder:
     def compute_flights_in_operation(self):
         drone_assignments_list = self.compute_drone_assignments()
         flights = []
-        clients_to_be_served = self.visit_order[self.number_of_served_clients: self.number_of_clients_to_be_served]
+        clients_to_be_served = self.visit_order[self.number_of_served_clients:self.number_of_clients_to_be_served]
         pointer = 0
         for number_of_clients in drone_assignments_list:
-            visited_clients = clients_to_be_served[pointer:number_of_clients]
+            visited_clients = clients_to_be_served[pointer:(pointer + number_of_clients)]
             pointer += number_of_clients
             flights.append(Flight(self.start_node, self.end_node, visited_clients, self.problem_instance.drone))
         return flights

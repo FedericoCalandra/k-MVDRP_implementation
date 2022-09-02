@@ -5,13 +5,14 @@ from bin.rts_solver import RTSSolver
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
+from matplotlib import pyplot as plt
 from random import random, seed
 
-NUMBER_OF_CLIENT_NODES = [5]
+NUMBER_OF_CLIENT_NODES = [10]
 NUMBER_OF_TRAVEL_NODES = [5]
-SPACE_DIMENSION = 25000
-SEEDS = [1]
-NUMBERS_OF_AVAILABLE_DRONES = [1]
+SPACE_DIMENSION = 2500
+SEEDS = [2]
+NUMBERS_OF_AVAILABLE_DRONES = [2]
 
 
 class QuadricopterEnergyFunction(EnergyFunction):
@@ -105,6 +106,43 @@ for n in NUMBER_OF_CLIENT_NODES:
                                                              drone,
                                                              TRUCK))
 
+
+def plot_solution(pi):
+    plt.rcParams["figure.figsize"] = [9.00, 7.50]
+    plt.rcParams["figure.autolayout"] = True
+    plt.xlim(0, SPACE_DIMENSION)
+    plt.ylim(0, SPACE_DIMENSION)
+    plt.grid()
+    for v in pi.travel_nodes:
+        if v.is_warehouse:
+            plt.plot(v.x_coordinate, v.y_coordinate, marker="s", markersize=6, markeredgecolor="blue",
+                     markerfacecolor="blue", alpha=0.8)
+        else:
+            plt.plot(v.x_coordinate, v.y_coordinate, marker="o", markersize=5, markeredgecolor="blue",
+                     markerfacecolor="blue")
+        plt.text(v.x_coordinate + 5, v.y_coordinate + 25, f"V{v.index}", fontsize="medium", color="blue")
+    for c in pi.client_nodes:
+        plt.plot(c.x_coordinate, c.y_coordinate, marker="o", markersize=5, markeredgecolor="red",
+                 markerfacecolor="red", alpha=0.8)
+        plt.text(c.x_coordinate + 5, c.y_coordinate + 25, f"C{c.index}", fontsize="medium", color="red")
+    for e in solution.active_edges:
+        o = e.operation
+        plt.arrow(o.start_node.x_coordinate, o.start_node.y_coordinate,
+                  o.end_node.x_coordinate - o.start_node.x_coordinate,
+                  o.end_node.y_coordinate - o.start_node.y_coordinate,
+                  head_width=SPACE_DIMENSION/120, head_length=SPACE_DIMENSION/60,
+                  length_includes_head=True, color="blue", alpha=0.5)
+        for flight in o.flights:
+            if flight.list_of_movements:
+                for movement in flight.list_of_movements:
+                    plt.arrow(movement.start_node.x_coordinate, movement.start_node.y_coordinate,
+                              movement.end_node.x_coordinate - movement.start_node.x_coordinate,
+                              movement.end_node.y_coordinate - movement.start_node.y_coordinate,
+                              head_width=SPACE_DIMENSION/140, head_length=SPACE_DIMENSION/70, length_includes_head=True,
+                              color="red", linestyle="dotted", alpha=0.3)
+    plt.show()
+
+
 for problem_instance in problem_instances:
     rts_solver = RTSSolver(problem_instance)
     print("\n\nPROBLEM INSTANCE" + "\nnumber of clients: " + str(len(problem_instance.client_nodes)) +
@@ -124,5 +162,7 @@ for problem_instance in problem_instances:
             print(edge)
     print("----------------------")
     print("Total time: " + str(solution.total_time) + "\nComputational time: " + str(solution.computational_time))
+    plot_solution(problem_instance)
+
 
 print("\n\nTERMINATED")
