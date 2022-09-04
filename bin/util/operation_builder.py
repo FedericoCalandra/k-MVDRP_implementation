@@ -35,10 +35,10 @@ class OperationBuilder:
 
     # block assignments
     def compute_drone_assignments(self):
-        n = self.number_of_clients_to_be_served
+        n = self.number_of_clients_to_be_served - self.number_of_served_clients
         drone_assignments_list = []
         while n > 0:
-            clients_visited_by_drone = math.ceil(self.number_of_clients_to_be_served /
+            clients_visited_by_drone = math.ceil((self.number_of_clients_to_be_served - self.number_of_served_clients) /
                                                  self.problem_instance.number_of_available_drones)
             if clients_visited_by_drone < n:
                 drone_assignments_list.append(clients_visited_by_drone)
