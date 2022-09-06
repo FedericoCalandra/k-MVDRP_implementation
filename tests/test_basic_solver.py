@@ -1,74 +1,107 @@
+from bin.distance_matrix.distance_matrix import DistanceMatrix
+from bin.distance_matrix.uniform_distance_matrix_generator import UniformDistanceMatrixGenerator
+from bin.problem_instantiator import ProblemInstance
+from random import random, seed
 import unittest
-from bin import problem_instantiator
-from bin.basic_solver import BasicSolver
+from bin.optimal_solver import OptimalSolver
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
 
 
+SUPPRESS_OUTPUT = True
+NUMBER_OF_CLIENT_NODES = [4]
+NUMBER_OF_TRAVEL_NODES = [3]
+SPACE_DIMENSION = 10000
+SEEDS = [1]
+TRUCK_SPEED = 10  # m/s
+TRUCK = Truck(TRUCK_SPEED)
+
+
+class QuadricopterEnergyFunction(EnergyFunction):
+    def apply(self, flight_distance, carried_weight, is_hovering: bool):
+        if carried_weight <= 0.375:
+            return (31.000 + ((33.110 - 31.000) * (carried_weight - 0.000)) / 0.375) * flight_distance
+        if carried_weight <= 0.750:
+            return (33.110 + ((35.364 - 33.110) * (carried_weight - 0.375)) / 0.375) * flight_distance
+        if carried_weight <= 1.125:
+            return (35.364 + ((37.712 - 35.364) * (carried_weight - 0.750)) / 0.375) * flight_distance
+        if carried_weight <= 1.500:
+            return (37.712 + ((40.342 - 37.712) * (carried_weight - 1.125)) / 0.375) * flight_distance
+        if carried_weight <= 1.875:
+            return (40.342 + ((43.088 - 40.342) * (carried_weight - 1.500)) / 0.375) * flight_distance
+        if carried_weight <= 2.250:
+            return (43.088 + ((46.021 - 43.088) * (carried_weight - 1.875)) / 0.375) * flight_distance
+        if carried_weight <= 2.625:
+            return (46.021 + ((49.154 - 46.021) * (carried_weight - 2.250)) / 0.375) * flight_distance
+        if carried_weight <= 3.000:
+            return (49.154 + ((52.500 - 49.154) * (carried_weight - 2.625))) * flight_distance
+
+    def apply_if_hovering(self, hovering_time: float):
+        return 31.000 * hovering_time
+
+
+QUADRICOPTER_ENERGY_FUNCTION = QuadricopterEnergyFunction()
+QUADRICOPTER_MAX_WEIGHT = 3.000  # kg
+QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540000 * 1]  # Joule*kg
+QUADRICOPTER_SPEED = [10]  # m/s
+
+drone = Drone(QUADRICOPTER_SPEED[0], QUADRICOPTER_MAX_WEIGHT, QUADRICOPTER_MAX_ENERGY_AVAILABLE[0],
+              QUADRICOPTER_ENERGY_FUNCTION)
+
+WEIGHTS_SEED = 100
+
+
+def generate_random_weight_sequence(length, random_seed):
+    sequence = []
+    seed(random_seed)
+    for i in range(length):
+        sequence.append(random() * 2.3)
+    return sequence
+
+
+def generate_instances(num_of_drones, drone_type):
+    problem_instances = []
+    for n in NUMBER_OF_CLIENT_NODES:
+        for m in NUMBER_OF_TRAVEL_NODES:
+            for s in SEEDS:
+                generator = UniformDistanceMatrixGenerator(s)
+                distance_matrix = generator.generate(m, n, SPACE_DIMENSION)
+                problem_instances.append(ProblemInstance(generator.get_clients_coordinates(),
+                                                         generator.get_travels_coordinates(),
+                                                         generate_random_weight_sequence(n, WEIGHTS_SEED),
+                                                         distance_matrix,
+                                                         DistanceMatrix(distance_matrix.
+                                                                        get_truck_distance_matrix(n)),
+                                                         num_of_drones,
+                                                         drone_type,
+                                                         TRUCK))
+    return problem_instances
+
+
 class BasicSolverTestSuite(unittest.TestCase):
 
     def setUp(self):
-
-        class Exp(EnergyFunction):
-            def apply(self, flight_time, carried_weight, is_hovering: bool):
-                if is_hovering:
-                    return 1 * flight_time
-                return 1 * flight_time * carried_weight
-
-        self.package_weights = [1, 1, 2, 1, 1, 3]
-        self.drone_distance_matrix_1 = [[0, 7, 10, 9.4, 5.4, 5, 5.4, 12, 8.5, 5.4, 3.6],
-                                        [7, 0, 7, 10.4, 10.4, 5, 3, 8.6, 8.5, 7, 10.6],
-                                        [10, 7, 0, 5.4, 9.4, 11.1, 5.4, 2, 3.6, 5.4, 12.4],
-                                        [9.4, 10.4, 5.4, 0, 6, 12.8, 7.6, 6.4, 2, 4.2, 10.2],
-                                        [5.4, 10.4, 9.4, 6, 0, 10.2, 7.6, 11.2, 6.3, 4.2, 4.5],
-                                        [5, 5, 11.1, 12.8, 10.2, 0, 5.8, 13, 11.3, 8.6, 8.2],
-                                        [5.4, 3, 5.4, 7.6, 7.6, 5.8, 0, 7.3, 5.8, 4, 8.6],
-                                        [12, 8.6, 2, 6.4, 11.2, 13, 7.3, 0, 5, 7.3, 14.3],
-                                        [8.5, 8.5, 3.6, 2, 6.3, 11.3, 5.8, 5, 0, 3.2, 10],
-                                        [5.4, 7, 5.4, 4.2, 4.2, 8.6, 4, 7.3, 3.2, 0, 7.1],
-                                        [3.6, 10.6, 12.4, 10.2, 4.5, 8.2, 8.6, 14.3, 10, 7.1, 0]]
-        self.truck_distance_matrix_1 = [[0, 7, 10, 9.4, 5.4],
-                                        [7, 0, 7, 10.4, 10.4],
-                                        [10, 7, 0, 5.4, 9.4],
-                                        [9.4, 10.4, 5.4, 0, 6],
-                                        [5.4, 10.4, 9.4, 6, 0]]
-        self.drone_distance_matrix_2 = [[0, 7, 10, 5, 5.4, 12],
-                                        [7, 0, 7, 5, 3, 8.6],
-                                        [10, 7, 0, 11.1, 5.4, 2],
-                                        [5, 5, 11.1, 0, 5.8, 13],
-                                        [5.4, 3, 5.4, 5.8, 0, 7.3],
-                                        [12, 8.6, 2, 13, 7.3, 0]]
-        self.truck_distance_matrix_2 = [[0, 7, 10],
-                                        [7, 0, 7],
-                                        [10, 7, 0]]
-
-        self.num_of_clients = len(self.drone_distance_matrix_2) - len(self.truck_distance_matrix_2)
-        self.num_of_travels = len(self.truck_distance_matrix_2)
-        self.drone_time_matrix = self.drone_distance_matrix_2
-        self.truck_time_matrix = self.truck_distance_matrix_2
-        self.drone = Drone(10.0, 5.0, 2, Exp())
-        self.truck = Truck(10)
-        self.problem_instance = problem_instantiator.ProblemInstance(self.num_of_clients, self.num_of_travels,
-                                                                     self.package_weights, self.drone_time_matrix,
-                                                                     self.truck_time_matrix, 2, self.drone, self.truck)
-        self.basic_solver = BasicSolver(self.problem_instance)
+        self.basic_solver = OptimalSolver(generate_instances(2, drone)[0])
 
     # truck movement test
     def test_truck_movement(self):
         truck_movements = self.basic_solver.compute_all_feasible_truck_movements()
-        print("\nTRUCK MOVEMENTS COMUTED")
+        print("\nTRUCK MOVEMENTS COMPUTED")
         for movement in truck_movements:
             print(movement)
-        self.assertEqual(len(truck_movements), pow(len(self.truck_distance_matrix_2), 2))
 
     # all ops test
     def test_compute_all_feasible_operations(self):
-        all_operations = self.basic_solver.compute_all_feasible_operations()
+        all_operations = self.basic_solver.all_feasible_operations
         print("ALL FEASIBLE OPERATIONS COMPUTED")
         for operation in all_operations:
             print(operation)
         print("Total number of feasible operations: " + str(len(all_operations)))
+
+    def test_solve(self):
+        print("\n\nSOLVE\n\n")
+        self.basic_solver.solve()
 
 
 if __name__ == '__main__':

@@ -16,8 +16,9 @@ class Operation:
 
     def __str__(self):
         str_flights = ""
-        for flight in self.flights:
-            str_flights += str(flight) + "\n"
+        if self.flights:
+            for flight in self.flights:
+                str_flights += str(flight) + "\n"
         return "Truck: " + str(self.truck_movement) + "\nDrone flights:\n" + str_flights
 
     def is_feasible(self):

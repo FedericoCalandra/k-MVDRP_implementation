@@ -1,6 +1,6 @@
 import unittest
 from bin import problem_instantiator
-from bin.basic_solver import BasicSolver
+from bin.optimal_solver import OptimalSolver
 from bin.rts_solver import RTSSolver
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction

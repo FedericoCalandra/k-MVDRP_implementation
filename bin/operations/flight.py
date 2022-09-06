@@ -42,9 +42,6 @@ class Flight:
                     weight_delivered += client.weight
         return self.total_weight - weight_delivered
 
-    def clone(self):
-        return Flight(self.takeoff_node, self.landing_node, self.visited_clients, self.drone)
-
     def __str__(self):
         str_visited_clients = ""
         for client in self.visited_clients:
