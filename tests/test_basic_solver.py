@@ -4,14 +4,15 @@ from bin.problem_instantiator import ProblemInstance
 from random import random, seed
 import unittest
 from bin.optimal_solver import OptimalSolver
+from bin.util.drawer import draw_solution
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
 
 
 SUPPRESS_OUTPUT = True
-NUMBER_OF_CLIENT_NODES = [4]
-NUMBER_OF_TRAVEL_NODES = [3]
+NUMBER_OF_CLIENT_NODES = [2]
+NUMBER_OF_TRAVEL_NODES = [4]
 SPACE_DIMENSION = 10000
 SEEDS = [1]
 TRUCK_SPEED = 10  # m/s
@@ -82,7 +83,8 @@ def generate_instances(num_of_drones, drone_type):
 class BasicSolverTestSuite(unittest.TestCase):
 
     def setUp(self):
-        self.basic_solver = OptimalSolver(generate_instances(2, drone)[0])
+        self.problem_instance = generate_instances(2, drone)[0]
+        self.basic_solver = OptimalSolver(self.problem_instance)
 
     # truck movement test
     def test_truck_movement(self):
@@ -101,7 +103,8 @@ class BasicSolverTestSuite(unittest.TestCase):
 
     def test_solve(self):
         print("\n\nSOLVE\n\n")
-        self.basic_solver.solve()
+        solution = self.basic_solver.solve()
+        draw_solution(self.problem_instance, solution, SPACE_DIMENSION)
 
 
 if __name__ == '__main__':

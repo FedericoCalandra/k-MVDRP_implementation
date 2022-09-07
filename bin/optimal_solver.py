@@ -6,6 +6,7 @@ from bin.operations.operation import Operation
 from bin.problem_instantiator import ProblemInstance
 import itertools
 import gurobipy as gb
+from gurobipy import abs_
 
 from bin.util.optimal_solution import OptimalSolution
 
@@ -64,10 +65,11 @@ class OptimalSolver:
                                      [self.feasible_flights[i]], self.problem_instance.truck))
             for i in range(pointer, len(self.feasible_flights)):
                 flights.append(self.feasible_flights[i])
-            combinations = itertools.combinations(flights, self.problem_instance.number_of_available_drones)
-            for flights_comb in combinations:
-                ops.append(Operation(self.problem_instance, movement.start_node, movement.end_node,
-                                     flights_comb, self.problem_instance.truck))
+            for n in range(2, self.problem_instance.number_of_available_drones + 1):
+                combinations = itertools.combinations(flights, n)
+                for flights_comb in combinations:
+                    ops.append(Operation(self.problem_instance, movement.start_node, movement.end_node,
+                                         flights_comb, self.problem_instance.truck))
             pointer = len(self.feasible_flights)
             for operation in ops:
                 operations_computed.append(operation)
@@ -130,7 +132,7 @@ class OptimalSolver:
                             for v2 in set_of_nodes
                         )
                         for v1 in set_of_nodes
-                    ) <= (len(set_of_nodes) - 1),
+                    ) <= len(set_of_nodes) - 1,
                     name="subtour_elim"
                 )
 
