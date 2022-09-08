@@ -6,7 +6,6 @@ from bin.operations.operation import Operation
 from bin.problem_instantiator import ProblemInstance
 import itertools
 import gurobipy as gb
-from gurobipy import abs_
 
 from bin.util.optimal_solution import OptimalSolution
 

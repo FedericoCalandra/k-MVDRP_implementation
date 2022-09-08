@@ -5,14 +5,15 @@ from random import random, seed
 import unittest
 from bin.optimal_solver import OptimalSolver
 from bin.util.drawer import draw_solution
+from bin.util.lower_bound_calculator import RelaxedLowerBoundCalculator, CETSPLowerBoundCalculator
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
 
 
 SUPPRESS_OUTPUT = True
-NUMBER_OF_CLIENT_NODES = [2]
-NUMBER_OF_TRAVEL_NODES = [4]
+NUMBER_OF_CLIENT_NODES = [5]
+NUMBER_OF_TRAVEL_NODES = [5]
 SPACE_DIMENSION = 10000
 SEEDS = [1]
 TRUCK_SPEED = 10  # m/s
@@ -84,27 +85,36 @@ class BasicSolverTestSuite(unittest.TestCase):
 
     def setUp(self):
         self.problem_instance = generate_instances(2, drone)[0]
-        self.basic_solver = OptimalSolver(self.problem_instance)
+        self.optimal_solver = OptimalSolver(self.problem_instance)
 
     # truck movement test
     def test_truck_movement(self):
-        truck_movements = self.basic_solver.compute_all_feasible_truck_movements()
+        truck_movements = self.optimal_solver.compute_all_feasible_truck_movements()
         print("\nTRUCK MOVEMENTS COMPUTED")
         for movement in truck_movements:
             print(movement)
 
     # all ops test
     def test_compute_all_feasible_operations(self):
-        all_operations = self.basic_solver.all_feasible_operations
-        print("ALL FEASIBLE OPERATIONS COMPUTED")
-        for operation in all_operations:
-            print(operation)
+        all_operations = self.optimal_solver.all_feasible_operations
+        # print("ALL FEASIBLE OPERATIONS COMPUTED")
+        # for operation in all_operations:
+        #     print(operation)
         print("Total number of feasible operations: " + str(len(all_operations)))
 
     def test_solve(self):
         print("\n\nSOLVE\n\n")
-        solution = self.basic_solver.solve()
+        solution = self.optimal_solver.solve()
         draw_solution(self.problem_instance, solution, SPACE_DIMENSION)
+
+    def test_lower_bound_1_calculator(self):
+        lb_calc = RelaxedLowerBoundCalculator(self.optimal_solver)
+        print("Lower Bound = " + str(lb_calc.compute_lower_bound_1()))
+
+    def test_lower_bound_2_calculator(self):
+        lb_calc = CETSPLowerBoundCalculator(self.problem_instance)
+        print("Lower Bound = " + str(lb_calc.compute_lower_bound_2()))
+
 
 
 if __name__ == '__main__':
