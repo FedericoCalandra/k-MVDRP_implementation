@@ -1,3 +1,5 @@
+import time
+
 from bin.nodes.client_node import ClientNode
 from bin.nodes.travel_node import TravelNode
 from bin.operations.flight import Flight
@@ -33,6 +35,7 @@ class OptimalSolver:
 
     def __init__(self, problem_instance: ProblemInstance):
         self.problem_instance = problem_instance
+        self.start_time = time.time()
         self.feasible_flights = []
         self.all_feasible_operations = self.compute_all_feasible_operations()
         self.x = []
@@ -156,7 +159,7 @@ class OptimalSolver:
                 if self.x[i].X > 0.5:
                     operations.append(o[i])
 
-        return OptimalSolution(is_infeasible, total_time, operations, model.Runtime)
+        return OptimalSolution(is_infeasible, total_time, operations, time.time() - self.start_time)
 
     def compute_set(self):
         computed_set = []
