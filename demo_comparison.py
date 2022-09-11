@@ -14,11 +14,11 @@ import csv
 
 SUPPRESS_OUTPUT = False
 
-NUMBER_OF_CLIENT_NODES = [3]
-NUMBER_OF_TRAVEL_NODES = [4]
+NUMBER_OF_CLIENT_NODES = [4, 5]
+NUMBER_OF_TRAVEL_NODES = [4, 5]
 SPACE_DIMENSION = 10000
-SEEDS = [1]
-NUMBERS_OF_AVAILABLE_DRONES = [3]
+SEEDS = [1, 2]
+NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3]
 
 
 class QuadricopterEnergyFunction(EnergyFunction):
@@ -73,12 +73,12 @@ TRUCK = Truck(TRUCK_SPEED)
 QUADRICOPTER_ENERGY_FUNCTION = QuadricopterEnergyFunction()
 QUADRICOPTER_MAX_WEIGHT = 3.000                                 # kg
 QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540000 * 1, 900000 * 1]    # Joule*kg
-QUADRICOPTER_SPEED = [10, 15]                                   # m/s
+QUADRICOPTER_SPEED = [10]                                       # m/s
 
 OCTOCOPTER_ENERGY_FUNCTION = OctocopterEnergyFunction()
 OCTOCOPTER_MAX_WEIGHT = 20.000                                  # kg
 OCTOCOPTER_MAX_ENERGY_AVAILABLE = [540000 * 10, 900000 * 10]    # Joule*kg
-OCTOCOPTER_SPEED = [10, 15]                                     # m/s
+OCTOCOPTER_SPEED = [10]                                         # m/s
 
 drones = []
 for speed in QUADRICOPTER_SPEED:
@@ -119,11 +119,11 @@ def generate_instances(num_of_drones, drone_type):
     return problem_instances
 
 
-with open('computational_results.csv', mode='w') as results:
+with open('comparison_computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "RTS Objective Function (s)",
-                             "RTS Time (s)", "RTS #feaslible instances", "OPT Objective Function (s)", "OPT Time (s)",
-                             "OPT #feasible instances"])
+                             "RTS Time (s)", "RTS feasible instances", "OPT Objective Function (s)", "OPT Time (s)",
+                             "OPT feasible instances"])
     for drone in drones:
         for k in NUMBERS_OF_AVAILABLE_DRONES:
             number_of_instances = 0

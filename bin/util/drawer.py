@@ -67,3 +67,28 @@ def draw_solution(problem_instance: ProblemInstance, solution, space_dimension: 
                      f"k: {problem_instance.number_of_available_drones}  "
                      f"algorithm: {algorithm}")
         plt.show()
+
+
+def draw_exemple():
+    plt.rcParams["figure.figsize"] = [9.00, 7.50]
+    plt.rcParams["figure.autolayout"] = True
+    plt.xlim(0, 100)
+    plt.ylim(0, 100)
+    plt.plot(50, 10, marker="o", markersize=5, markeredgecolor="blue",
+             markerfacecolor="blue")
+    plt.plot(50, 90, marker="o", markersize=5, markeredgecolor="blue",
+             markerfacecolor="blue")
+    plt.plot(35, 40, marker="o", markersize=5, markeredgecolor="red",
+             markerfacecolor="red", alpha=0.8)
+    plt.plot(35, 70, marker="o", markersize=5, markeredgecolor="red",
+             markerfacecolor="red", alpha=0.8)
+    plt.arrow(50, 10, 0, 80, head_width=1, head_length=2, length_includes_head=True, color="blue", alpha=0.3)
+    plt.arrow(50, 10, 35 - 50, 40 - 10, head_width=1, head_length=2, length_includes_head=True,
+              color="violet", linestyle="dotted", alpha=1)
+    plt.arrow(35, 40, 35 - 35, 70 - 40, head_width=1, head_length=2, length_includes_head=True,
+              color="red", linestyle=(1, (3, 10)), alpha=0.7)
+    # plt.arrow(50, 10, 35 - 50, 70 - 10, head_width=1, head_length=2, length_includes_head=True,
+    #           color="red", linestyle="dotted", alpha=0.3)
+    plt.arrow(35, 70, 50 - 35, 90 - 70, head_width=1, head_length=2, length_includes_head=True,
+              color="orange", linestyle="dotted", alpha=1)
+    plt.show()

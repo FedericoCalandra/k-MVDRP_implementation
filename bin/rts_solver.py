@@ -1,3 +1,5 @@
+import time
+
 from bin.problem_instantiator import ProblemInstance
 from bin.util.graph import Graph
 from bin.util.rts_solution import RTSSolution
@@ -8,6 +10,7 @@ import gurobipy as gb
 class RTSSolver:
     def __init__(self, problem_instance: ProblemInstance):
         self.problem_instance = problem_instance
+        self.start_time = time.time()
         self.visit_order = self.route()
         self.graph = self.transform()
 
@@ -97,4 +100,4 @@ class RTSSolver:
                 if x[i].X > 0.5:
                     active_edges.append(self.graph.edges[i])
 
-        return RTSSolution(is_infeasible, total_time, active_edges, model.Runtime)
+        return RTSSolution(is_infeasible, total_time, active_edges, time.time() - self.start_time)

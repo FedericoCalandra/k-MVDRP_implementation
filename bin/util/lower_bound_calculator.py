@@ -1,6 +1,4 @@
 import itertools
-import math
-
 from bin.nodes.client_node import ClientNode
 from bin.nodes.travel_node import TravelNode
 from bin.optimal_solver import OptimalSolver

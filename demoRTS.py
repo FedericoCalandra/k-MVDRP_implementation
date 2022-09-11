@@ -11,13 +11,13 @@ from statistics import mean
 import csv
 
 
-SUPPRESS_OUTPUT = False
+SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = [15]
-NUMBER_OF_TRAVEL_NODES = [5]
+NUMBER_OF_CLIENT_NODES = [10, 15]
+NUMBER_OF_TRAVEL_NODES = [10, 15]
 SPACE_DIMENSION = 10000
-SEEDS = [1]
-NUMBERS_OF_AVAILABLE_DRONES = [2]
+SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3, 4, 5, 6, 7, 8]
 
 
 class QuadricopterEnergyFunction(EnergyFunction):
@@ -121,7 +121,7 @@ def generate_instances(num_of_drones, drone_type):
 with open('computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "Objective Function (s)",
-                             "Time (s)", "#feaslible instances"])
+                             "Time (s)", "feasible instances"])
     for drone in drones:
         for k in NUMBERS_OF_AVAILABLE_DRONES:
             total_time_list = []
