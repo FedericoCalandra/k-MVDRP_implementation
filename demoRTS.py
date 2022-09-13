@@ -13,10 +13,10 @@ import csv
 
 SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = [10, 15]
-NUMBER_OF_TRAVEL_NODES = [10, 15]
-SPACE_DIMENSION = 10000
-SEEDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+NUMBER_OF_CLIENT_NODES = [8, 12]
+NUMBER_OF_TRAVEL_NODES = [8, 12]
+SPACE_DIMENSION = 14000
+SEEDS = [1, 2, 3, 4, 5]
 NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3, 4, 5, 6, 7, 8]
 
 
@@ -99,6 +99,19 @@ def generate_random_weight_sequence(length, random_seed):
 WEIGHTS_SEED = 100
 
 
+TRUCK_DISTANCE_FACTOR = 1.6
+
+
+def compute_truck_distance_matrix(distance_matrix):
+    matrix = []
+    for row in distance_matrix:
+        r = []
+        for el in row:
+            r.append(el * TRUCK_DISTANCE_FACTOR)
+        matrix.append(r)
+    return matrix
+
+
 def generate_instances(num_of_drones, drone_type):
     problem_instances = []
     for n in NUMBER_OF_CLIENT_NODES:
@@ -110,8 +123,8 @@ def generate_instances(num_of_drones, drone_type):
                                                          generator.get_travels_coordinates(),
                                                          generate_random_weight_sequence(n, WEIGHTS_SEED),
                                                          distance_matrix,
-                                                         DistanceMatrix(distance_matrix.
-                                                                        get_truck_distance_matrix(n)),
+                                                         DistanceMatrix(compute_truck_distance_matrix(distance_matrix.
+                                                                        get_truck_distance_matrix(n))),
                                                          num_of_drones,
                                                          drone_type,
                                                          TRUCK))
@@ -121,24 +134,35 @@ def generate_instances(num_of_drones, drone_type):
 with open('computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "Objective Function (s)",
-                             "Time (s)", "feasible instances"])
+                             "TSP obj (s)", "Time (s)", "feasible instances"])
+    counter = 0
+    total_number_of_instances_to_be_computed = \
+        len(drones) * len(NUMBERS_OF_AVAILABLE_DRONES) * len(NUMBER_OF_CLIENT_NODES) * len(NUMBER_OF_TRAVEL_NODES) * \
+        len(SEEDS)
     for drone in drones:
         for k in NUMBERS_OF_AVAILABLE_DRONES:
             total_time_list = []
             computational_time_list = []
             number_of_instances = 0
             number_of_infeasible_instances = 0
+            tsp_obj_values = []
             for problem_instance in generate_instances(k, drone):
                 rts_solver = RTSSolver(problem_instance)
                 solution = rts_solver.solve()
                 total_time_list.append(solution.total_time)
                 computational_time_list.append(solution.computational_time)
+                tsp_obj_values.append(solution.tsp_obj_value * TRUCK_DISTANCE_FACTOR * TRUCK_SPEED)
                 number_of_instances += 1
                 if solution.is_infeasible:
                     number_of_infeasible_instances += 1
+
+                counter += 1
+                print(f"PROGRESS: {(100 * counter) / total_number_of_instances_to_be_computed}%\n"
+                      f"Computed: {counter}/{total_number_of_instances_to_be_computed} instances\n\n")
+
                 if not SUPPRESS_OUTPUT:
                     print("\n\nPROBLEM INSTANCE" + "\nnumber of clients: " + str(len(problem_instance.client_nodes)) +
-                          "\nnumber of travel node: " + str(len(problem_instance.travel_nodes)) +
+                          "\nnumber of travel nodes: " + str(len(problem_instance.travel_nodes)) +
                           "\ndrone: " + str(problem_instance.drone) + "\ntruck: " + str(problem_instance.truck) +
                           "\nnumber of drones: " + str(problem_instance.number_of_available_drones))
                     print("---visit order---")
@@ -152,8 +176,8 @@ with open('computational_results.csv', mode='w') as results:
                         for edge in solution.active_edges:
                             print(edge)
                     print("----------------------")
-                    print("Total time: " + str(solution.total_time) + "\nComputational time: " + str(
-                        solution.computational_time))
+                    print("Total time: " + str(round(solution.total_time, 2)) + "\nComputational time: " + str(
+                        round(solution.computational_time, 3)))
                     draw_solution(problem_instance, solution, SPACE_DIMENSION)
 
             results_writer.writerow([drone.speed,
@@ -161,7 +185,9 @@ with open('computational_results.csv', mode='w') as results:
                                      4 if drone.max_weight == 3 else 8,
                                      k,
                                      round(mean(total_time_list), 2),
+                                     round(mean(tsp_obj_values), 2),
                                      round(mean(computational_time_list), 3),
                                      number_of_instances - number_of_infeasible_instances])
+
 
 print("\n\nTERMINATED")

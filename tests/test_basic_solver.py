@@ -113,7 +113,7 @@ class BasicSolverTestSuite(unittest.TestCase):
 
     def test_lower_bound_2_calculator(self):
         lb_calc = CETSPLowerBoundCalculator(self.problem_instance)
-        print("Lower Bound = " + str(lb_calc.compute_lower_bound_2()))
+        print("Lower Bound = " + str(lb_calc.compute_lower_bound()))
 
 
 

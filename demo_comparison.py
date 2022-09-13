@@ -3,6 +3,8 @@ from bin.distance_matrix.uniform_distance_matrix_generator import UniformDistanc
 from bin.optimal_solver import OptimalSolver
 from bin.problem_instantiator import ProblemInstance
 from bin.rts_solver import RTSSolver
+from bin.util.lower_bound_calculator import CETSPLowerBoundCalculator
+from bin.util.lower_bound_calculator import RelaxedLowerBoundCalculator
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
@@ -12,13 +14,13 @@ from statistics import mean
 import csv
 
 
-SUPPRESS_OUTPUT = False
+SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = [4, 5]
-NUMBER_OF_TRAVEL_NODES = [4, 5]
+NUMBER_OF_CLIENT_NODES = [2, 3, 4]
+NUMBER_OF_TRAVEL_NODES = [2, 3, 4]
 SPACE_DIMENSION = 10000
 SEEDS = [1, 2]
-NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3]
+NUMBERS_OF_AVAILABLE_DRONES = [1, 2]
 
 
 class QuadricopterEnergyFunction(EnergyFunction):
@@ -72,12 +74,12 @@ TRUCK = Truck(TRUCK_SPEED)
 
 QUADRICOPTER_ENERGY_FUNCTION = QuadricopterEnergyFunction()
 QUADRICOPTER_MAX_WEIGHT = 3.000                                 # kg
-QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540000 * 1, 900000 * 1]    # Joule*kg
+QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540000 * 1]                # Joule*kg
 QUADRICOPTER_SPEED = [10]                                       # m/s
 
 OCTOCOPTER_ENERGY_FUNCTION = OctocopterEnergyFunction()
 OCTOCOPTER_MAX_WEIGHT = 20.000                                  # kg
-OCTOCOPTER_MAX_ENERGY_AVAILABLE = [540000 * 10, 900000 * 10]    # Joule*kg
+OCTOCOPTER_MAX_ENERGY_AVAILABLE = [540000 * 10]                 # Joule*kg
 OCTOCOPTER_SPEED = [10]                                         # m/s
 
 drones = []
@@ -119,11 +121,15 @@ def generate_instances(num_of_drones, drone_type):
     return problem_instances
 
 
-with open('comparison_computational_results.csv', mode='w') as results:
+with open('comparison_computational_results_2.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "RTS Objective Function (s)",
                              "RTS Time (s)", "RTS feasible instances", "OPT Objective Function (s)", "OPT Time (s)",
-                             "OPT feasible instances"])
+                             "OPT feasible instances", "lower bound"])
+    counter = 0
+    total_number_of_instances_to_be_computed = \
+        len(drones) * len(NUMBERS_OF_AVAILABLE_DRONES) * len(NUMBER_OF_CLIENT_NODES) * len(NUMBER_OF_TRAVEL_NODES) * \
+        len(SEEDS)
     for drone in drones:
         for k in NUMBERS_OF_AVAILABLE_DRONES:
             number_of_instances = 0
@@ -135,6 +141,8 @@ with open('comparison_computational_results.csv', mode='w') as results:
             optimal_total_time_list = []
             optimal_computational_time_list = []
             optimal_number_of_infeasible_instances = 0
+
+            lower_bound_values = []
 
             for problem_instance in generate_instances(k, drone):
                 number_of_instances += 1
@@ -153,9 +161,17 @@ with open('comparison_computational_results.csv', mode='w') as results:
                 if optimal_solution.is_infeasible:
                     optimal_number_of_infeasible_instances += 1
 
+                counter += 1
+                print(f"PROGRESS: {(100 * counter) / total_number_of_instances_to_be_computed}%\n"
+                      f"Computed: {counter}/{total_number_of_instances_to_be_computed} instances\n\n")
+
                 if not SUPPRESS_OUTPUT:
                     draw_solution(problem_instance, rts_solution, SPACE_DIMENSION)
                     draw_solution(problem_instance, optimal_solution, SPACE_DIMENSION)
+
+                lb1 = CETSPLowerBoundCalculator(problem_instance)
+                lb2 = RelaxedLowerBoundCalculator(optimal_solver)
+                lower_bound_values.append(max(lb1.compute_lower_bound(), lb2.compute_lower_bound()))
 
             results_writer.writerow([drone.speed,
                                      drone.max_energy_available,
@@ -166,6 +182,7 @@ with open('comparison_computational_results.csv', mode='w') as results:
                                      number_of_instances - rts_number_of_infeasible_instances,
                                      round(mean(optimal_total_time_list), 2),
                                      round(mean(optimal_computational_time_list), 3),
-                                     number_of_instances - optimal_number_of_infeasible_instances])
+                                     number_of_instances - optimal_number_of_infeasible_instances,
+                                     ])
 
 print("\n\nTERMINATED")

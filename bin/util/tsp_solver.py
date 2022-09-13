@@ -38,6 +38,7 @@ class TSPSolver:
         self.distance_matrix = distance_matrix
         self.dist = {(c1, c2): self.distance(c1, c2) for c1, c2 in combinations(self.clients, 2)}
         self.problem_variables = None
+        self.model = None
 
     def distance(self, client1, client2):
         return self.distance_matrix[client1][client2]
@@ -58,6 +59,7 @@ class TSPSolver:
         selected = gp.tuplelist((i, j) for i, j in vals.keys() if vals[i, j] > 0.5)
         tour = subtour(selected, self.clients)
         assert len(tour) == len(self.clients)
+        self.model = m
         return self.get_solution()
 
     def get_solution(self):
@@ -71,3 +73,6 @@ class TSPSolver:
                     row.append(0)
             solution.append(row)
         return solution
+
+    def get_obj_value(self):
+        return self.model.ObjVal

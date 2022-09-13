@@ -29,9 +29,10 @@ class GraphEdge:
 
 
 class Graph:
-    def __init__(self, problem_instance: ProblemInstance, visit_order: list[ClientNode]):
+    def __init__(self, problem_instance: ProblemInstance, visit_order: list[ClientNode], modified_op_builder=False):
         self.problem_instance = problem_instance
         self.visit_order = visit_order
+        self.use_modified_op_builder = modified_op_builder
         self.nodes = self.build_nodes()
         self.edges = self.build_edges()
 
@@ -58,10 +59,13 @@ class Graph:
         for i in range(len(self.nodes)):
             for j in range(starting_node.number_of_serviced_clients, len(self.nodes[i])):
                 if i != starting_node.travel_node.index or j != starting_node.number_of_serviced_clients:
-                    operation_builder = OperationBuilder(self.problem_instance, starting_node.travel_node,
-                                                         self.nodes[i][j].travel_node,
-                                                         self.nodes[i][j].number_of_serviced_clients,
-                                                         starting_node.number_of_serviced_clients, self.visit_order)
+                    if self.use_modified_op_builder:
+                        operation_builder = None
+                    else:
+                        operation_builder = OperationBuilder(self.problem_instance, starting_node.travel_node,
+                                                             self.nodes[i][j].travel_node,
+                                                             self.nodes[i][j].number_of_serviced_clients,
+                                                             starting_node.number_of_serviced_clients, self.visit_order)
                     op = operation_builder.build_operation()
                     if op:
                         edges_computed.append(GraphEdge(starting_node, self.nodes[i][j], op))

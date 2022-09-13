@@ -65,7 +65,8 @@ def draw_solution(problem_instance: ProblemInstance, solution, space_dimension: 
         plt.suptitle(f"drone speed: {problem_instance.drone.speed}m/s  "
                      f"max energy: {problem_instance.drone.max_energy_available}J  "
                      f"k: {problem_instance.number_of_available_drones}  "
-                     f"algorithm: {algorithm}")
+                     f"algorithm: {algorithm}\n"
+                     f"Obj-Value: {round(solution.total_time, 2)}s")
         plt.show()
 
 

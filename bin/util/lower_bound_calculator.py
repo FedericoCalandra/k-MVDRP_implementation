@@ -11,11 +11,11 @@ class CETSPLowerBoundCalculator:
     def __init__(self, problem_instance: ProblemInstance):
         self.problem_instance = problem_instance
 
-    def compute_lower_bound_2(self):
+    def compute_lower_bound(self):
         env = gb.Env(empty=True)
         env.setParam("OutputFlag", 0)
         env.start()
-        model = gb.Model()
+        model = gb.Model(env=env)
         x = []
         for i in range(len(self.problem_instance.travel_nodes)):
             row = []
@@ -43,23 +43,20 @@ class CETSPLowerBoundCalculator:
             model.addConstr(gb.quicksum(x[j][i] for j in range(len(x))) -
                             gb.quicksum(x[i][k] for k in range(len(x[0]))) == 0, name="flow_constraint")
 
-        model.addConstr(gb.quicksum(x[self.problem_instance.get_warehouse().index][i] for i in range(1, len(x[0]))) == 1,
+        model.addConstr(gb.quicksum(x[self.problem_instance.get_warehouse().index][i]
+                                    for i in range(1, len(x[0]))) == 1,
                         name="warehouse_constraint")
 
         for sets in self.compute_sets():
             for set_of_nodes in sets:
                 model.addConstr(gb.quicksum(
                     gb.quicksum(x[i][j] for j in range(len(x)))
-                    for i in range(len(x[0]))) <= len(sets) - 1, name="subtour_elimination"
+                    for i in range(len(x[0]))) <= len(set_of_nodes) - 1, name="subtour_elimination"
                                 )
 
         model.optimize()
 
-        for i in range(len(x)):
-            for j in range(len(x)):
-                print(x[i][j])
-
-        return model.ObjVal if model.Status == gb.GRB.OPTIMAL else None
+        return model.ObjVal if model.Status == gb.GRB.OPTIMAL else 0
 
     def compute_sets(self):
         computed_set = []
@@ -85,11 +82,11 @@ class RelaxedLowerBoundCalculator:
     def __init__(self, optimal_solver: OptimalSolver):
         self.opt_solver = optimal_solver
 
-    def compute_lower_bound_1(self):
+    def compute_lower_bound(self):
         env = gb.Env(empty=True)
         env.setParam("OutputFlag", 0)
         env.start()
-        model = gb.Model()
+        model = gb.Model(env=env)
         times = []
         x = []
         o = self.opt_solver.all_feasible_operations
@@ -106,4 +103,4 @@ class RelaxedLowerBoundCalculator:
 
         model.optimize()
 
-        return model.ObjVal if model.Status == gb.GRB.OPTIMAL else None
+        return model.ObjVal if model.Status == gb.GRB.OPTIMAL else 0

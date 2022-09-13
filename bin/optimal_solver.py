@@ -99,7 +99,7 @@ class OptimalSolver:
         env = gb.Env(empty=True)
         env.setParam("OutputFlag", 0)
         env.start()
-        model = gb.Model()
+        model = gb.Model(env=env)
         times = []
         o = self.all_feasible_operations
         for i in range(len(o)):

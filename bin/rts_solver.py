@@ -11,6 +11,7 @@ class RTSSolver:
     def __init__(self, problem_instance: ProblemInstance):
         self.problem_instance = problem_instance
         self.start_time = time.time()
+        self.tsp_obj_value = 0
         self.visit_order = self.route()
         self.graph = self.transform()
 
@@ -25,6 +26,7 @@ class RTSSolver:
         distance_matrix = self.compute_distance_matrix()
         tsp = TSPSolver(nodes, distance_matrix)
         tsp_solution = tsp.solve()
+        self.tsp_obj_value = tsp.get_obj_value()
         return self.compute_visit_order(tsp_solution)
 
     def compute_visit_order(self, solution):
@@ -100,4 +102,4 @@ class RTSSolver:
                 if x[i].X > 0.5:
                     active_edges.append(self.graph.edges[i])
 
-        return RTSSolution(is_infeasible, total_time, active_edges, time.time() - self.start_time)
+        return RTSSolution(is_infeasible, total_time, active_edges, time.time() - self.start_time, self.tsp_obj_value)
