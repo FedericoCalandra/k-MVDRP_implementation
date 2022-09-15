@@ -3,6 +3,7 @@ from bin.nodes.travel_node import TravelNode
 from bin.operations.operation import Operation
 from bin.problem_instantiator import ProblemInstance
 from bin.util.operation_builder import OperationBuilder
+from bin.util.operation_builder_modified import OperationBuilderV2
 
 
 class GraphNode:
@@ -60,12 +61,17 @@ class Graph:
             for j in range(starting_node.number_of_serviced_clients, len(self.nodes[i])):
                 if i != starting_node.travel_node.index or j != starting_node.number_of_serviced_clients:
                     if self.use_modified_op_builder:
-                        operation_builder = None
+                        operation_builder = OperationBuilderV2(self.problem_instance, starting_node.travel_node,
+                                                               self.nodes[i][j].travel_node,
+                                                               self.nodes[i][j].number_of_serviced_clients,
+                                                               starting_node.number_of_serviced_clients,
+                                                               self.visit_order)
                     else:
                         operation_builder = OperationBuilder(self.problem_instance, starting_node.travel_node,
                                                              self.nodes[i][j].travel_node,
                                                              self.nodes[i][j].number_of_serviced_clients,
-                                                             starting_node.number_of_serviced_clients, self.visit_order)
+                                                             starting_node.number_of_serviced_clients,
+                                                             self.visit_order)
                     op = operation_builder.build_operation()
                     if op:
                         edges_computed.append(GraphEdge(starting_node, self.nodes[i][j], op))

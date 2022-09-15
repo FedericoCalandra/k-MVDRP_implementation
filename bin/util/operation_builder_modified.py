@@ -1,4 +1,5 @@
-import math
+import itertools
+import gurobipy as gb
 from bin.nodes.client_node import ClientNode
 from bin.nodes.node import Node
 from bin.operations.flight import Flight
@@ -6,7 +7,7 @@ from bin.operations.operation import Operation
 from bin.problem_instantiator import ProblemInstance
 
 
-class OperationBuilder:
+class OperationBuilderV2:
     def __init__(self, problem_instance: ProblemInstance, start_node: Node, end_node: Node,
                  number_of_clients_to_be_served: int, number_of_served_clients: int, visit_order: list[ClientNode]):
         self.problem_instance = problem_instance
@@ -15,6 +16,7 @@ class OperationBuilder:
         self.number_of_clients_to_be_served = number_of_clients_to_be_served
         self.number_of_served_clients = number_of_served_clients
         self.visit_order = visit_order.copy()
+        self.clients_to_be_visited = self.visit_order[self.number_of_served_clients:self.number_of_clients_to_be_served]
 
     def build_operation(self):
         # noinspection PyTypeChecker
@@ -22,28 +24,66 @@ class OperationBuilder:
                               self.compute_flights_in_operation(), self.problem_instance.truck)
         return operation if operation.is_feasible() else None
 
-    def compute_flights_in_operation(self):
-        drone_assignments_list = self.compute_drone_assignments()
+    def compute_all_flights(self):
         flights = []
-        clients_to_be_served = self.visit_order[self.number_of_served_clients:self.number_of_clients_to_be_served]
-        pointer = 0
-        for number_of_clients in drone_assignments_list:
-            visited_clients = clients_to_be_served[pointer:(pointer + number_of_clients)]
-            pointer += number_of_clients
-            flights.append(Flight(self.start_node, self.end_node, visited_clients, self.problem_instance.drone))
+        for i in range(1, len(self.clients_to_be_visited) - (self.problem_instance.number_of_available_drones - 2)):
+            combinations = itertools.permutations(self.clients_to_be_visited, i)
+            for j in combinations:
+                flights.append(Flight(self.start_node, self.end_node, list(j), self.problem_instance.drone))
         return flights
 
-    # optimised assignments
-    def compute_drone_assignments(self):
-        n = self.number_of_clients_to_be_served - self.number_of_served_clients
-        drone_assignments_list = []
-        while n > 0:
-            clients_visited_by_drone = math.ceil((self.number_of_clients_to_be_served - self.number_of_served_clients) /
-                                                 self.problem_instance.number_of_available_drones)
-            if clients_visited_by_drone < n:
-                drone_assignments_list.append(clients_visited_by_drone)
-                n -= clients_visited_by_drone
-            else:
-                drone_assignments_list.append(n)
-                n = 0
-        return drone_assignments_list
+    @staticmethod
+    def cover(flight: Flight, client: ClientNode) -> bool:
+        for c in flight.visited_clients:
+            if c == client:
+                return True
+        return False
+
+    def compute_flights_in_operation(self):
+        flights = []
+        if len(self.clients_to_be_visited) > self.problem_instance.number_of_available_drones:
+            x = []
+            z = []
+            all_flights = self.compute_all_flights()
+            env = gb.Env(empty=True)
+            env.setParam("OutputFlag", 0)
+            env.start()
+            model = gb.Model(env=env)
+
+            for i in range(len(all_flights)):
+                x.append(model.addVar(vtype=gb.GRB.BINARY, name=f"x[{i}]"))
+
+            for i in range(len(all_flights)):
+                z.append(model.addVar(vtype=gb.GRB.CONTINUOUS, name=f"z[{i}]"))
+
+            y = model.addVar(vtype=gb.GRB.CONTINUOUS, name="y")
+
+            model.modelSense = gb.GRB.MINIMIZE
+            model.setObjective(y)
+
+            for i in range(len(all_flights)):
+                model.addConstr(z[i] == all_flights[i].compute_flight_time(self.problem_instance) * x[i])
+
+            model.addConstr(y == gb.max_(z))
+
+            for c in self.clients_to_be_visited:
+                model.addConstr(gb.quicksum(self.cover(all_flights[i], c) * x[i]
+                                            for i in range(len(all_flights))) == 1,
+                                name=f"constr_c[{c.index}]")
+
+            for i in range(len(all_flights)):
+                model.addConstr(gb.quicksum(self.cover(all_flights[i], c) * c.weight * x[i]
+                                            for c in self.clients_to_be_visited)
+                                <= self.problem_instance.drone.max_weight,
+                                name=f"weight_constr_f{i}")
+
+            model.optimize()
+
+            for i in range(len(x)):
+                if x[i].X > 0.5:
+                    flights.append(all_flights[i])
+        else:
+            for c in self.clients_to_be_visited:
+                flights.append(Flight(self.start_node, self.end_node, [c], self.problem_instance.drone))
+
+        return flights

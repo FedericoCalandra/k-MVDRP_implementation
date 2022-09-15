@@ -1,17 +1,18 @@
 from random import random, seed
 from bin.distance_matrix.distance_matrix import DistanceMatrix
 from bin.distance_matrix.uniform_distance_matrix_generator import UniformDistanceMatrixGenerator
+from bin.operations.flight import Flight
 from bin.problem_instantiator import ProblemInstance
-from bin.rts_solver import RTSSolver
-from bin.util.operation_builder import OperationBuilder
+from bin.rts_solver_modified import RTSSolverV2
+from bin.util.operation_builder_modified import OperationBuilderV2
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
 
-NUMBER_OF_CLIENT_NODES = [8]
-NUMBER_OF_TRAVEL_NODES = [5]
-SPACE_DIMENSION = 2500
-SEEDS = [25]
+NUMBER_OF_CLIENT_NODES = [5]
+NUMBER_OF_TRAVEL_NODES = [3]
+SPACE_DIMENSION = 10000
+SEEDS = [2]
 NUMBERS_OF_AVAILABLE_DRONES = [2]
 
 
@@ -34,6 +35,9 @@ class QuadricopterEnergyFunction(EnergyFunction):
         if carried_weight <= 3.000:
             return 49.154 + ((52.500 - 49.154) * (carried_weight - 2.625))
 
+    def apply_if_hovering(self, hovering_time: float):
+        return 31.000 * hovering_time
+
 
 class OctocopterEnergyFunction(EnergyFunction):
     def apply(self, flight_time, carried_weight, is_hovering: bool):
@@ -54,18 +58,21 @@ class OctocopterEnergyFunction(EnergyFunction):
         if carried_weight <= 20.0:
             return 358.77 + ((390.00 - 358.77) * (carried_weight - 17.5))
 
+    def apply_if_hovering(self, hovering_time: float):
+        return 200.000 * hovering_time
+
 
 TRUCK_SPEED = 15                                                # m/s
 TRUCK = Truck(TRUCK_SPEED)
 
 QUADRICOPTER_ENERGY_FUNCTION = QuadricopterEnergyFunction()
 QUADRICOPTER_MAX_WEIGHT = 3.000                                 # kg
-QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540.00 * 1, 900.000 * 1]   # Joule*kg
+QUADRICOPTER_MAX_ENERGY_AVAILABLE = [540.00 * 1]   # Joule*kg
 QUADRICOPTER_SPEED = [10]                                       # m/s
 
 OCTOCOPTER_ENERGY_FUNCTION = OctocopterEnergyFunction()
 OCTOCOPTER_MAX_WEIGHT = 20.000                                  # kg
-OCTOCOPTER_MAX_ENERGY_AVAILABLE = [540.00 * 10, 900.000 * 10]   # Joule*kg
+OCTOCOPTER_MAX_ENERGY_AVAILABLE = [540.00 * 10]   # Joule*kg
 OCTOCOPTER_SPEED = [10]                                         # m/s
 
 drones = []
@@ -106,8 +113,14 @@ for n in NUMBER_OF_CLIENT_NODES:
                                                              drone,
                                                              TRUCK))
 
-s = RTSSolver(problem_instances[0])
-ob = OperationBuilder(problem_instances[0], problem_instances[0].travel_nodes[1], problem_instances[0].travel_nodes[4],
-                      4, 2, s.visit_order)
+s = RTSSolverV2(problem_instances[1])
+ob = OperationBuilderV2(problem_instances[1], problem_instances[1].travel_nodes[0], problem_instances[1].travel_nodes[0],
+                        6, 0, s.visit_order)
 operation = ob.build_operation()
-print(operation.flights)
+f1 = Flight(problem_instances[1].travel_nodes[0], problem_instances[1].travel_nodes[0], s.visit_order[0:2],
+            problem_instances[1].drone)
+f2 = Flight(problem_instances[1].travel_nodes[0], problem_instances[1].travel_nodes[0], s.visit_order[3:5],
+            problem_instances[1].drone)
+print("time(f1) = " + str(f1.compute_flight_time(problem_instances[1])))
+print("time(f2) = " + str(f2.compute_flight_time(problem_instances[1])))
+print(str(operation.flights))
