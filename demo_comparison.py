@@ -102,6 +102,19 @@ def generate_random_weight_sequence(length, random_seed):
 WEIGHTS_SEED = 100
 
 
+TRUCK_DISTANCE_FACTOR = 1.6
+
+
+def compute_truck_distance_matrix(distance_matrix):
+    matrix = []
+    for row in distance_matrix:
+        r = []
+        for el in row:
+            r.append(el * TRUCK_DISTANCE_FACTOR)
+        matrix.append(r)
+    return matrix
+
+
 def generate_instances(num_of_drones, drone_type):
     problem_instances = []
     for n in NUMBER_OF_CLIENT_NODES:
@@ -113,8 +126,8 @@ def generate_instances(num_of_drones, drone_type):
                                                          generator.get_travels_coordinates(),
                                                          generate_random_weight_sequence(n, WEIGHTS_SEED),
                                                          distance_matrix,
-                                                         DistanceMatrix(distance_matrix.
-                                                                        get_truck_distance_matrix(n)),
+                                                         DistanceMatrix(compute_truck_distance_matrix(distance_matrix.
+                                                                        get_truck_distance_matrix(n))),
                                                          num_of_drones,
                                                          drone_type,
                                                          TRUCK))
