@@ -14,8 +14,8 @@ import csv
 
 SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = range(1, 8)
-NUMBER_OF_TRAVEL_NODES = range(1, 8)
+NUMBER_OF_CLIENT_NODES = [2, 5, 7]
+NUMBER_OF_TRAVEL_NODES = [4, 8]
 SPACE_DIMENSION = 10000
 SEEDS = [1, 2, 3, 4, 5]
 NUMBERS_OF_AVAILABLE_DRONES = [2]
@@ -135,8 +135,8 @@ def generate_instances(num_of_drones, drone_type):
 with open('improvedRTS_computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "RTS Objective Function (s)",
-                             "RTS Time (s)", "RTS feasible instances", "OPT Objective Function (s)", "OPT Time (s)",
-                             "OPT feasible instances"])
+                             "RTS Time (s)", "RTS feasible instances", "impRTS Objective Function (s)",
+                             "impRTS Time (s)", "impRTS feasible instances"])
     counter = 0
     total_number_of_instances_to_be_computed = \
         len(drones) * len(NUMBERS_OF_AVAILABLE_DRONES) * len(NUMBER_OF_CLIENT_NODES) * len(NUMBER_OF_TRAVEL_NODES) * \
