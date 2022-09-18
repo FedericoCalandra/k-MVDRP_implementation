@@ -145,6 +145,7 @@ with open('scalability_computational_results.csv', mode='w') as results:
                 if rts_solution.is_infeasible:
                     rts_number_of_infeasible_instances += 1
 
+                counter += 1
                 print(f"PROGRESS: {(100 * counter) / total_number_of_instances_to_be_computed}%\n"
                       f"Computed: {counter}/{total_number_of_instances_to_be_computed} instances\n\n")
 
