@@ -2,7 +2,6 @@ from bin.distance_matrix.distance_matrix import DistanceMatrix
 from bin.distance_matrix.uniform_distance_matrix_generator import UniformDistanceMatrixGenerator
 from bin.problem_instantiator import ProblemInstance
 from bin.rts_solver import RTSSolver
-from bin.rts_solver_modified import RTSSolverV2
 from bin.veicles.drone import Drone
 from bin.veicles.energy_function import EnergyFunction
 from bin.veicles.truck import Truck
@@ -14,11 +13,11 @@ import csv
 
 SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = range(1, 8)
-NUMBER_OF_TRAVEL_NODES = range(1, 8)
+NUMBER_OF_CLIENT_NODES = range(1, 14)
+NUMBER_OF_TRAVEL_NODES = range(1, 14)
 SPACE_DIMENSION = 10000
-SEEDS = [1, 2, 3, 4, 5]
-NUMBERS_OF_AVAILABLE_DRONES = [2]
+SEEDS = [1, 2, 3]
+NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3, 4]
 
 
 class QuadricopterEnergyFunction(EnergyFunction):
@@ -119,7 +118,7 @@ def generate_instances(num_of_drones, drone_type):
     return problem_instances
 
 
-with open('comparison_computational_results.csv', mode='w') as results:
+with open('scalability_computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "RTS Objective Function (s)",
                              "RTS Time (s)", "RTS feasible instances", "OPT Objective Function (s)", "OPT Time (s)",
@@ -136,10 +135,6 @@ with open('comparison_computational_results.csv', mode='w') as results:
             rts_computational_time_list = []
             rts_number_of_infeasible_instances = 0
 
-            improved_rts_total_time_list = []
-            improved_rts_computational_time_list = []
-            improved_rts_number_of_infeasible_instances = 0
-
             for problem_instance in generate_instances(k, drone):
                 number_of_instances += 1
 
@@ -150,22 +145,12 @@ with open('comparison_computational_results.csv', mode='w') as results:
                 if rts_solution.is_infeasible:
                     rts_number_of_infeasible_instances += 1
 
-                improved_rts_solver = RTSSolverV2(problem_instance)
-                improved_rts_solution = improved_rts_solver.solve()
-                improved_rts_total_time_list.append(improved_rts_solution.total_time)
-                improved_rts_computational_time_list.append(improved_rts_solution.computational_time)
-                if improved_rts_solution.is_infeasible:
-                    improved_rts_number_of_infeasible_instances += 1
-
-                counter += 1
                 print(f"PROGRESS: {(100 * counter) / total_number_of_instances_to_be_computed}%\n"
                       f"Computed: {counter}/{total_number_of_instances_to_be_computed} instances\n\n")
 
                 if not SUPPRESS_OUTPUT:
                     print("\n\nRTS Graph\n", rts_solver.graph)
-                    print("\n\nimp RTS Graph\n", improved_rts_solver.graph)
                     draw_solution(problem_instance, rts_solution, SPACE_DIMENSION)
-                    draw_solution(problem_instance, improved_rts_solution, SPACE_DIMENSION)
 
             results_writer.writerow([drone.speed,
                                      drone.max_energy_available,
@@ -173,10 +158,6 @@ with open('comparison_computational_results.csv', mode='w') as results:
                                      k,
                                      round(mean(rts_total_time_list), 2),
                                      round(mean(rts_computational_time_list), 3),
-                                     number_of_instances - rts_number_of_infeasible_instances,
-                                     round(mean(improved_rts_total_time_list), 2),
-                                     round(mean(improved_rts_computational_time_list), 3),
-                                     number_of_instances - improved_rts_number_of_infeasible_instances,
-                                     ])
+                                     number_of_instances - rts_number_of_infeasible_instances])
 
 print("\n\nTERMINATED")

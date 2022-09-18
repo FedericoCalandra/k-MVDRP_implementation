@@ -17,6 +17,15 @@ class CETSPLowerBoundCalculator:
         env.start()
         model = gb.Model(env=env)
         x = []
+
+        warehouse_cover_all_clients = True
+        for c in self.problem_instance.client_nodes:
+            if not self.cover(self.problem_instance.get_warehouse(), c):
+                warehouse_cover_all_clients = False
+                break
+        if warehouse_cover_all_clients:
+            return 0
+
         for i in range(len(self.problem_instance.travel_nodes)):
             row = []
             for j in range(len(self.problem_instance.travel_nodes)):
@@ -49,9 +58,12 @@ class CETSPLowerBoundCalculator:
 
         for sets in self.compute_sets():
             for set_of_nodes in sets:
+                U = []
+                for node in set_of_nodes:
+                    U.append(node.index)
                 model.addConstr(gb.quicksum(
-                    gb.quicksum(x[i][j] for j in range(len(x)))
-                    for i in range(len(x[0]))) <= len(set_of_nodes) - 1, name="subtour_elimination"
+                    gb.quicksum(x[i][j] for j in U)
+                    for i in U) <= len(U) - 1, name="subtour_elimination"
                                 )
 
         model.optimize()
@@ -60,8 +72,9 @@ class CETSPLowerBoundCalculator:
 
     def compute_sets(self):
         computed_set = []
-        travel_nodes = self.problem_instance.travel_nodes
-        for n in range(2, len(travel_nodes) - 1):
+        travel_nodes = self.problem_instance.travel_nodes.copy()
+        travel_nodes.remove(self.problem_instance.get_warehouse())
+        for n in range(2, len(travel_nodes)):
             computed_set.append(set(itertools.permutations(travel_nodes, n)))
         return computed_set
 

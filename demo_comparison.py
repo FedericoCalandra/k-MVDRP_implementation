@@ -16,9 +16,9 @@ import csv
 
 SUPPRESS_OUTPUT = True
 
-NUMBER_OF_CLIENT_NODES = [3, 4, 5]
-NUMBER_OF_TRAVEL_NODES = [3, 4, 5]
-SPACE_DIMENSION = 10000
+NUMBER_OF_CLIENT_NODES = [2, 3]
+NUMBER_OF_TRAVEL_NODES = [2, 3]
+SPACE_DIMENSION = 5000
 SEEDS = [1, 2, 3, 4, 5]
 NUMBERS_OF_AVAILABLE_DRONES = [1, 2, 3]
 
@@ -121,7 +121,7 @@ def generate_instances(num_of_drones, drone_type):
     return problem_instances
 
 
-with open('comparison_computational_results_2.csv', mode='w') as results:
+with open('comparison_computational_results.csv', mode='w') as results:
     results_writer = csv.writer(results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     results_writer.writerow(["Drone Speed (m/s)", "Energy Density (J/kg)", "Rotors", "k", "RTS Objective Function (s)",
                              "RTS Time (s)", "RTS feasible instances", "OPT Objective Function (s)", "OPT Time (s)",
@@ -130,6 +130,7 @@ with open('comparison_computational_results_2.csv', mode='w') as results:
     total_number_of_instances_to_be_computed = \
         len(drones) * len(NUMBERS_OF_AVAILABLE_DRONES) * len(NUMBER_OF_CLIENT_NODES) * len(NUMBER_OF_TRAVEL_NODES) * \
         len(SEEDS)
+    lb1_is_best_counter = 0
     for drone in drones:
         for k in NUMBERS_OF_AVAILABLE_DRONES:
             number_of_instances = 0
@@ -171,7 +172,13 @@ with open('comparison_computational_results_2.csv', mode='w') as results:
 
                 lb1 = CETSPLowerBoundCalculator(problem_instance)
                 lb2 = RelaxedLowerBoundCalculator(optimal_solver)
-                lower_bound_values.append(max(lb1.compute_lower_bound(), lb2.compute_lower_bound()))
+                lb1_computed = lb1.compute_lower_bound()
+                lb2_computed = lb2.compute_lower_bound()
+                if lb1_computed > lb2_computed:
+                    lb1_is_best_counter += 1
+                    lower_bound_values.append(lb1_computed)
+                else:
+                    lower_bound_values.append(lb2_computed)
 
             results_writer.writerow([drone.speed,
                                      drone.max_energy_available,
@@ -183,6 +190,7 @@ with open('comparison_computational_results_2.csv', mode='w') as results:
                                      round(mean(optimal_total_time_list), 2),
                                      round(mean(optimal_computational_time_list), 3),
                                      number_of_instances - optimal_number_of_infeasible_instances,
-                                     ])
+                                     round(mean(lower_bound_values), 2)])
+    results_writer.writerow([f"{lb1_is_best_counter}/{total_number_of_instances_to_be_computed}"])
 
 print("\n\nTERMINATED")
